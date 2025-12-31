@@ -1,26 +1,211 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
+/* Flat Design System - Bold & Geometric */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Color System - Vibrant & High Contrast */
+  --background: #FFFFFF; /* Pure White */
+  --foreground: #111827; /* Gray 900 - Sharp contrast text */
+  --primary: #3B82F6; /* Blue 500 - Action color */
+  --primary-hover: #2563EB; /* Blue 600 */
+  --secondary: #10B981; /* Emerald 500 - Supporting accent */
+  --secondary-hover: #059669; /* Emerald 600 */
+  --accent: #F59E0B; /* Amber 500 - Highlights */
+  --accent-hover: #D97706; /* Amber 600 */
+  --muted: #F3F4F6; /* Gray 100 - Secondary backgrounds */
+  --muted-hover: #E5E7EB; /* Gray 200 */
+  --border: #E5E7EB; /* Gray 200 */
+  --destructive: #EF4444; /* Red 500 */
+  --destructive-hover: #DC2626; /* Red 600 */
+
+  /* Typography */
+  --font-base: 'Outfit', sans-serif;
+
+  /* Spacing */
+  --section-padding: 6rem;
+  --card-padding: 1.5rem;
+  --element-gap: 1rem;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* Base Styles */
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-base);
+  font-weight: 400;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Typography Hierarchy - Bold & Geometric */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-base);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--foreground);
+}
+
+h1 {
+  @apply text-5xl md:text-6xl lg:text-7xl;
+  font-weight: 800;
+}
+
+h2 {
+  @apply text-4xl md:text-5xl;
+  font-weight: 800;
+}
+
+h3 {
+  @apply text-2xl md:text-3xl;
+  font-weight: 700;
+}
+
+h4 {
+  @apply text-xl md:text-2xl;
+  font-weight: 700;
+}
+
+/* Labels - Uppercase & Bold */
+.label-text {
+  font-weight: 600;
+  @apply text-xs uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* Geometric Background Decorations */
+.bg-decoration {
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Decorative geometric shapes for visual interest */
+.geo-circle {
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.geo-square {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+/* Flat button styles - Primary */
+.flat-button-primary {
+  background: var(--primary);
+  color: white;
+  border: none;
+  font-weight: 600;
+  transition: all 200ms ease;
+}
+
+.flat-button-primary:hover {
+  background: var(--primary-hover);
+  transform: scale(1.05);
+}
+
+.flat-button-primary:active {
+  transform: scale(0.98);
+}
+
+/* Flat button styles - Secondary */
+.flat-button-secondary {
+  background: var(--muted);
+  color: var(--foreground);
+  border: none;
+  font-weight: 600;
+  transition: all 200ms ease;
+}
+
+.flat-button-secondary:hover {
+  background: var(--muted-hover);
+  transform: scale(1.05);
+}
+
+/* Flat button styles - Outline */
+.flat-button-outline {
+  background: transparent;
+  color: var(--primary);
+  border: 3px solid var(--primary);
+  font-weight: 600;
+  transition: all 200ms ease;
+}
+
+.flat-button-outline:hover {
+  background: var(--primary);
+  color: white;
+}
+
+/* Color block sections */
+.section-white {
+  background: var(--background);
+}
+
+.section-gray {
+  background: var(--muted);
+}
+
+.section-primary {
+  background: var(--primary);
+  color: white;
+}
+
+.section-secondary {
+  background: var(--secondary);
+  color: white;
+}
+
+.section-accent {
+  background: var(--accent);
+  color: white;
+}
+
+/* Flat card styles */
+.flat-card {
+  background: white;
+  border: none;
+  border-radius: 8px;
+  transition: all 200ms ease;
+}
+
+.flat-card:hover {
+  transform: scale(1.02);
+}
+
+/* Icon containers - Solid colored circles */
+.icon-circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: transform 200ms ease;
+}
+
+.group:hover .icon-circle {
+  transform: scale(1.1);
+}
+
+/* Focus styles - High contrast solid rings */
+*:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Smooth transitions for interactive elements only */
+button, a, [role="button"] {
+  transition-property: background-color, color, border-color, transform;
+  transition-timing-function: ease;
+  transition-duration: 200ms;
+}
+
+/* Respect Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
