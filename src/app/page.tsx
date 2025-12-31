@@ -1,12 +1,28 @@
 'use client';
 
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { EnhancedSetup } from '@/components/EnhancedSetup';
 import { GameDashboard } from '@/components/GameDashboard';
 import { useGameStore } from '@/store/gameStore';
 import { ChevronLeft, RotateCcw, Target, Zap, Brain, Shield, Grid3X3 } from 'lucide-react';
+import { ConfirmationDialog } from '@/components/ui/confirm-dialog';
 
 export default function Home() {
+  const [confirmState, setConfirmState] = useState<{
+    isOpen: boolean;
+    title: string;
+    description: string;
+    onConfirm: () => void;
+    variant: 'primary' | 'danger';
+  }>({
+    isOpen: false,
+    title: '',
+    description: '',
+    onConfirm: () => {},
+    variant: 'primary'
+  });
+
   const {
     gameStarted,
     players,
@@ -35,10 +51,23 @@ export default function Home() {
   } = useGameStore();
 
   const handleBackToSetup = () => {
-    // We'd need to add a way to go back - for now we'll reset
-    if (confirm('Going back will reset the current game. Are you sure?')) {
-      resetGame();
-    }
+    setConfirmState({
+      isOpen: true,
+      title: 'Back to Setup?',
+      description: 'Going back will reset the current game progress. Are you sure?',
+      onConfirm: () => resetGame(),
+      variant: 'danger'
+    });
+  };
+
+  const handleResetGame = () => {
+    setConfirmState({
+      isOpen: true,
+      title: 'Reset Game?',
+      description: 'Are you sure you want to reset the game? All recorded clues and deductions will be permanently lost.',
+      onConfirm: () => resetGame(),
+      variant: 'danger'
+    });
   };
 
   return (
@@ -111,7 +140,7 @@ export default function Home() {
               <Button 
                 variant="ghost" 
                 onClick={handleBackToSetup}
-                className="flex items-center gap-1 sm:gap-2 text-gray-600 hover:text-gray-900 h-8 sm:h-10 px-2 sm:px-4 text-xs sm:text-sm"
+                className="flex items-center gap-1 sm:gap-2 text-gray-600 hover:text-gray-900 h-8 sm:h-10 px-2 sm:px-4 text-xs sm:text-sm touch-manipulation active:scale-95 transition-transform"
               >
                 <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4" />
                 <span className="hidden min-[480px]:inline">Back to Setup</span>
@@ -120,12 +149,8 @@ export default function Home() {
               
               <Button 
                 variant="ghost" 
-                onClick={() => {
-                  if (confirm('Are you sure you want to reset the game? All progress will be lost.')) {
-                    resetGame();
-                  }
-                }}
-                className="flex items-center gap-1 sm:gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 h-8 sm:h-10 px-2 sm:px-4 text-xs sm:text-sm"
+                onClick={handleResetGame}
+                className="flex items-center gap-1 sm:gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 h-8 sm:h-10 px-2 sm:px-4 text-xs sm:text-sm touch-manipulation active:scale-95 transition-transform"
               >
                 <RotateCcw className="w-3 h-3 sm:w-4 sm:h-4" />
                 <span>Reset</span>
@@ -191,13 +216,6 @@ export default function Home() {
               </div>
             </div>
           </div>
-
-          {/* Footer */}
-          <footer className="text-center text-xs sm:text-sm text-gray-500 py-6 sm:py-8 border-t border-gray-200">
-            <p className="font-medium">
-              Built with Next.js, Zustand, and Tailwind CSS
-            </p>
-          </footer>
         </div>
       ) : (
         <GameDashboard
@@ -221,6 +239,15 @@ export default function Home() {
           onClearCardRow={clearCardRow}
         />
       )}
+
+      <ConfirmationDialog
+        isOpen={confirmState.isOpen}
+        onOpenChange={(open) => setConfirmState(prev => ({ ...prev, isOpen: open }))}
+        title={confirmState.title}
+        description={confirmState.description}
+        onConfirm={confirmState.onConfirm}
+        variant={confirmState.variant}
+      />
     </div>
   );
 }

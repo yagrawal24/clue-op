@@ -45,8 +45,8 @@ interface EnhancedSetupProps {
   onAddPlayer: (name: string) => void;
   onRemovePlayer: (playerId: string) => void;
   onReorderPlayers: (players: Player[]) => void;
-  onSetMyPlayer: (playerId: string) => void;
-  onSetFirstPlayer: (playerId: string) => void;
+  onSetMyPlayer: (playerId: string | null) => void;
+  onSetFirstPlayer: (playerId: string | null) => void;
   onSetMyCards: (cardNames: string[]) => void;
   onStartGame: () => void;
 }
@@ -57,8 +57,8 @@ interface SortablePlayerItemProps {
   isMe: boolean;
   isFirst: boolean;
   onRemove: (playerId: string) => void;
-  onSetMe: (playerId: string) => void;
-  onSetFirst: (playerId: string) => void;
+  onSetMe: (playerId: string | null) => void;
+  onSetFirst: (playerId: string | null) => void;
 }
 
 const SortablePlayerItem = ({
@@ -88,63 +88,65 @@ const SortablePlayerItem = ({
     <div
       ref={setNodeRef}
       style={style}
-      className={`flex items-center justify-between p-4 rounded-lg bg-white border-2 transition-all duration-200 ${
+      className={`flex items-center justify-between p-3 sm:p-4 rounded-lg bg-white border-2 transition-all duration-200 ${
         isDragging ? 'opacity-50 scale-105 border-blue-400' : 'hover:border-blue-400'
       } ${isMe ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}`}
     >
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
         <div
           {...attributes}
           {...listeners}
-          className="cursor-grab active:cursor-grabbing p-2 hover:bg-gray-100 rounded-md transition-colors"
+          className="cursor-grab active:cursor-grabbing p-1.5 sm:p-2 hover:bg-gray-100 rounded-md transition-colors touch-none flex-shrink-0"
         >
-          <GripVertical className="w-5 h-5 text-gray-400" strokeWidth={2} />
+          <GripVertical className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" strokeWidth={2} />
         </div>
         <div
-          className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white"
+          className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold text-white flex-shrink-0"
           style={{ backgroundColor: player.color }}
         >
           {index + 1}
         </div>
-        <div>
-          <span className="font-semibold text-lg">{player.name}</span>
-          <div className="flex gap-2 mt-1">
+        <div className="min-w-0 flex-1">
+          <span className="font-semibold text-sm sm:text-lg block truncate">{player.name}</span>
+          <div className="flex gap-1.5 sm:gap-2 mt-0.5 sm:mt-1">
             {isMe && (
-              <Badge className="bg-blue-500 text-white border-0 text-xs">You</Badge>
+              <Badge className="bg-blue-500 text-white border-0 text-[10px] sm:text-xs px-1.5 sm:px-2 py-0 sm:py-0.5">You</Badge>
             )}
             {isFirst && (
-              <Badge className="bg-amber-500 text-white border-0 text-xs">First</Badge>
+              <Badge className="bg-amber-500 text-white border-0 text-[10px] sm:text-xs px-1.5 sm:px-2 py-0 sm:py-0.5">First</Badge>
             )}
           </div>
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1 sm:gap-2 flex-wrap sm:flex-nowrap">
         <Button
           variant={isMe ? "default" : "outline"}
           size="sm"
-          onClick={() => onSetMe(player.id)}
-          className={isMe ? "bg-blue-500 hover:bg-blue-600" : ""}
+          onClick={() => onSetMe(isMe ? null : player.id)}
+          className={`h-8 px-2 sm:px-3 text-xs sm:text-sm ${isMe ? "bg-blue-500 hover:bg-blue-600" : ""}`}
+          title={isMe ? "Click to unset" : "Set as me"}
         >
-          <User className="w-4 h-4 mr-1" />
-          {isMe ? "You" : "Set as Me"}
+          <User className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-1" />
+          <span className="hidden sm:inline">{isMe ? "You" : "Set as Me"}</span>
         </Button>
         <Button
           variant={isFirst ? "default" : "outline"}
           size="sm"
-          onClick={() => onSetFirst(player.id)}
-          className={isFirst ? "bg-amber-500 hover:bg-amber-600" : ""}
+          onClick={() => onSetFirst(isFirst ? null : player.id)}
+          className={`h-8 px-2 sm:px-3 text-xs sm:text-sm ${isFirst ? "bg-amber-500 hover:bg-amber-600" : ""}`}
+          title={isFirst ? "Click to unset" : "Set as first player"}
         >
-          <Crown className="w-4 h-4 mr-1" />
-          {isFirst ? "First" : "Goes First"}
+          <Crown className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-1" />
+          <span className="hidden sm:inline">{isFirst ? "First" : "Goes First"}</span>
         </Button>
         <Button
           variant="ghost"
           size="sm"
           onClick={() => onRemove(player.id)}
-          className="text-red-500 hover:text-red-600 hover:bg-red-50"
+          className="text-red-500 hover:text-red-600 hover:bg-red-50 h-8 px-2"
         >
-          <Minus className="w-5 h-5" strokeWidth={2.5} />
+          <Minus className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={2.5} />
         </Button>
       </div>
     </div>
@@ -162,27 +164,27 @@ interface CardSelectorProps {
 
 const CardSelector = ({ title, cards, selectedCards, onToggleCard, color }: CardSelectorProps) => (
   <div>
-    <h4 className={`text-sm font-bold uppercase tracking-wider mb-3 ${color}`}>{title}</h4>
-    <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+    <h4 className={`text-xs sm:text-sm font-bold uppercase tracking-wider mb-2 sm:mb-3 ${color}`}>{title}</h4>
+    <div className="grid grid-cols-2 md:grid-cols-3 gap-1.5 sm:gap-2">
       {cards.map(card => {
         const isSelected = selectedCards.includes(card);
         return (
           <button
             key={card}
             onClick={() => onToggleCard(card)}
-            className={`p-3 rounded-lg border-2 transition-all duration-200 text-left ${
+            className={`p-2 sm:p-3 rounded-lg border-2 transition-all duration-200 text-left touch-manipulation active:scale-95 ${
               isSelected
-                ? 'border-blue-500 bg-blue-50 scale-[1.02]'
+                ? 'border-blue-500 bg-blue-50'
                 : 'border-gray-200 bg-white hover:border-gray-300'
             }`}
           >
-            <div className="flex items-center gap-2">
-              <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <div className={`w-4 h-4 sm:w-5 sm:h-5 rounded border-2 flex items-center justify-center transition-colors flex-shrink-0 ${
                 isSelected ? 'bg-blue-500 border-blue-500' : 'border-gray-300'
               }`}>
-                {isSelected && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
+                {isSelected && <Check className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" strokeWidth={3} />}
               </div>
-              <span className={`text-sm font-medium ${isSelected ? 'text-blue-700' : 'text-gray-700'}`}>
+              <span className={`text-xs sm:text-sm font-medium leading-tight ${isSelected ? 'text-blue-700' : 'text-gray-700'}`}>
                 {card}
               </span>
             </div>
@@ -268,23 +270,24 @@ export const EnhancedSetup = ({
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       {/* Step Indicator */}
-      <div className="flex items-center justify-center gap-4">
+      <div className="flex items-center justify-center gap-2 sm:gap-4">
         <button
           onClick={() => setStep('players')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-full font-semibold transition-all ${
+          className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full font-semibold transition-all text-xs sm:text-base touch-manipulation active:scale-95 ${
             step === 'players'
               ? 'bg-blue-500 text-white'
               : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
           }`}
         >
-          <Users className="w-4 h-4" />
-          1. Players
+          <Users className="w-3 h-3 sm:w-4 sm:h-4" />
+          <span className="hidden min-[360px]:inline">1. Players</span>
+          <span className="min-[360px]:hidden">1</span>
         </button>
-        <ArrowRight className="w-5 h-5 text-gray-400" />
+        <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 flex-shrink-0" />
         <button
           onClick={() => canProceedToCards && setStep('cards')}
           disabled={!canProceedToCards}
-          className={`flex items-center gap-2 px-4 py-2 rounded-full font-semibold transition-all ${
+          className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full font-semibold transition-all text-xs sm:text-base touch-manipulation active:scale-95 ${
             step === 'cards'
               ? 'bg-blue-500 text-white'
               : canProceedToCards
@@ -292,8 +295,9 @@ export const EnhancedSetup = ({
                 : 'bg-gray-50 text-gray-400 cursor-not-allowed'
           }`}
         >
-          <Hand className="w-4 h-4" />
-          2. Your Cards
+          <Hand className="w-3 h-3 sm:w-4 sm:h-4" />
+          <span className="hidden min-[360px]:inline">2. Your Cards</span>
+          <span className="min-[360px]:hidden">2</span>
         </button>
       </div>
 
@@ -328,7 +332,7 @@ export const EnhancedSetup = ({
                   <Button
                     onClick={handleAddPlayer}
                     disabled={!newPlayerName.trim() || players.length >= 6}
-                    className="w-full sm:w-auto"
+                    className="w-full sm:w-auto touch-manipulation active:scale-95 transition-transform"
                   >
                     <Plus className="w-4 h-4 mr-2" />
                     Add Player
@@ -360,9 +364,10 @@ export const EnhancedSetup = ({
                   size="sm"
                   onClick={shufflePlayers}
                   disabled={players.length < 2}
+                  className="touch-manipulation active:scale-95 transition-transform"
                 >
-                  <Shuffle className="w-4 h-4 mr-2" />
-                  Shuffle
+                  <Shuffle className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                  <span className="text-xs sm:text-sm">Shuffle</span>
                 </Button>
               </CardHeader>
               <CardContent>
@@ -432,10 +437,10 @@ export const EnhancedSetup = ({
               <Button
                 onClick={() => setStep('cards')}
                 size="lg"
-                className="text-lg px-12 h-14"
+                className="text-base sm:text-lg px-8 sm:px-12 h-12 sm:h-14 touch-manipulation active:scale-95 transition-transform"
               >
                 Continue to Your Cards
-                <ArrowRight className="w-5 h-5 ml-2" />
+                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2" />
               </Button>
             </div>
           )}
@@ -509,11 +514,12 @@ export const EnhancedSetup = ({
           </Card>
 
           {/* Navigation Buttons */}
-          <div className="flex justify-between gap-4">
+          <div className="flex flex-col sm:flex-row justify-between gap-3 sm:gap-4">
             <Button
               variant="outline"
               onClick={() => setStep('players')}
               size="lg"
+              className="touch-manipulation active:scale-95 transition-transform"
             >
               Back to Players
             </Button>
@@ -521,10 +527,10 @@ export const EnhancedSetup = ({
               onClick={handleStartGame}
               disabled={selectedCards.length < 3}
               size="lg"
-              className="text-lg px-12 h-14"
+              className="text-base sm:text-lg px-8 sm:px-12 h-12 sm:h-14 touch-manipulation active:scale-95 transition-transform"
             >
               Start Game
-              <ArrowRight className="w-5 h-5 ml-2" />
+              <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2" />
             </Button>
           </div>
 

@@ -56,8 +56,8 @@ interface GameActions {
   // Setup actions
   addPlayer: (name: string) => void;
   removePlayer: (playerId: string) => void;
-  setMyPlayer: (playerId: string) => void;
-  setFirstPlayer: (playerId: string) => void;
+  setMyPlayer: (playerId: string | null) => void;
+  setFirstPlayer: (playerId: string | null) => void;
   setMyCards: (cardNames: string[]) => void;
   reorderPlayers: (players: Player[]) => void;
   startGame: () => void;
@@ -114,17 +114,17 @@ export const useGameStore = create<GameState & GameActions>()(
         }));
       },
       
-      setMyPlayer: (playerId: string) => {
+      setMyPlayer: (playerId: string | null) => {
         set(state => ({
           myPlayerId: playerId,
           players: state.players.map(p => ({
             ...p,
-            isMe: p.id === playerId
+            isMe: playerId ? p.id === playerId : false
           }))
         }));
       },
       
-      setFirstPlayer: (playerId: string) => {
+      setFirstPlayer: (playerId: string | null) => {
         set({ firstPlayerId: playerId });
       },
       
