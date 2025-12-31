@@ -242,12 +242,14 @@ export const useGameStore = create<GameState & GameActions>()(
         const suggestedCards = [suggestion.suspect, suggestion.weapon, suggestion.room];
         
         // Process passes - if a player passed, they don't have ANY of the suggested cards
+        // This also updates potentially_owned to not_owned (crucial for cross-suggestion deductions)
         suggestion.passedPlayerIds.forEach(passedPlayerId => {
           suggestedCards.forEach(cardName => {
-            if (matrix[cardName][passedPlayerId].state === 'unknown') {
+            const currentState = matrix[cardName][passedPlayerId].state;
+            if (currentState === 'unknown' || currentState === 'potentially_owned') {
               matrix[cardName][passedPlayerId] = { state: 'not_owned' };
               newDeductions.push({
-                id: `deduction-${Date.now()}-${cardName}-${passedPlayerId}`,
+                id: `deduction-${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${cardName}-${passedPlayerId}`,
                 type: 'card_not_owned',
                 description: `${state.players.find(p => p.id === passedPlayerId)?.name} passed on ${cardName}`,
                 cardName,
@@ -366,6 +368,30 @@ export const useGameStore = create<GameState & GameActions>()(
             matrix[cardName][player.id] = { state: 'not_owned' };
           });
           matrix[cardName].envelope = { state: 'envelope' };
+        }
+
+        // If cycling back to unknown from owned, reset other players' states to unknown as well
+        // This allows users to undo accidental "owned" clicks
+        if (newState === 'unknown' && previousState === 'owned' && target !== 'envelope') {
+          matrix[cardName].envelope = { state: 'unknown' };
+          state.players.forEach(player => {
+            if (player.id !== target) {
+              // Only reset if it was set to not_owned (likely from the owned state)
+              // Keep potentially_owned states as they might be from suggestions
+              if (matrix[cardName][player.id].state === 'not_owned') {
+                matrix[cardName][player.id] = { state: 'unknown' };
+              }
+            }
+          });
+        }
+
+        // If cycling back to unknown from envelope, reset all players' states to unknown
+        if (newState === 'unknown' && previousState === 'envelope') {
+          state.players.forEach(player => {
+            if (matrix[cardName][player.id].state === 'not_owned') {
+              matrix[cardName][player.id] = { state: 'unknown' };
+            }
+          });
         }
 
         // Remove previous manual deductions for this card-target combination when state changes
@@ -522,16 +548,35 @@ export const useGameStore = create<GameState & GameActions>()(
         const newDeductions: Deduction[] = [];
         let changed = true;
         let iterations = 0;
-        const maxIterations = 50; // Prevent infinite loops
+        const maxIterations = 100; // Increased for more complex deductions
         
         // Deep copy matrix
         Object.keys(matrix).forEach(cardName => {
           matrix[cardName] = { ...matrix[cardName] };
         });
         
+        // Deep copy card links
+        cardLinks = cardLinks.map(link => ({ ...link, possibleCards: [...link.possibleCards] }));
+        
         while (changed && iterations < maxIterations) {
           changed = false;
           iterations++;
+          
+          // Rule 0: Update link possible cards based on current matrix knowledge
+          // This handles the cross-suggestion scenario where a player showed in one suggestion
+          // but passed in another overlapping suggestion
+          cardLinks.forEach((link, linkIndex) => {
+            if (link.resolved) return;
+            
+            const updatedPossible = link.possibleCards.filter(
+              cardName => matrix[cardName][link.playerId].state !== 'not_owned'
+            );
+            
+            if (updatedPossible.length < link.possibleCards.length) {
+              cardLinks[linkIndex] = { ...link, possibleCards: updatedPossible };
+              changed = true;
+            }
+          });
           
           // Rule 1: Resolve links where only one card is possible
           cardLinks.forEach((link, linkIndex) => {
@@ -552,15 +597,16 @@ export const useGameStore = create<GameState & GameActions>()(
                 
                 // Mark other players as not having this card
                 state.players.forEach(player => {
-                  if (player.id !== link.playerId && matrix[resolvedCard][player.id].state === 'unknown') {
+                  if (player.id !== link.playerId && matrix[resolvedCard][player.id].state !== 'owned') {
                     matrix[resolvedCard][player.id] = { state: 'not_owned' };
                   }
                 });
                 
+                const suggestion = state.suggestions.find(s => s.id === link.suggestionId);
                 newDeductions.push({
-                  id: `deduction-link-${Date.now()}-${resolvedCard}`,
+                  id: `deduction-link-${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${resolvedCard}`,
                   type: 'link_resolved',
-                  description: `${state.players.find(p => p.id === link.playerId)?.name} must have ${resolvedCard} (deduced from Turn ${state.suggestions.find(s => s.id === link.suggestionId)?.turnNumber})`,
+                  description: `${state.players.find(p => p.id === link.playerId)?.name} must have ${resolvedCard} (cross-referenced from Turn ${suggestion?.turnNumber})`,
                   cardName: resolvedCard,
                   playerId: link.playerId,
                   sourceSuggestionId: link.suggestionId,
@@ -570,8 +616,113 @@ export const useGameStore = create<GameState & GameActions>()(
                 changed = true;
               }
             } else if (remainingPossible.length === 0) {
-              // This shouldn't happen in valid game state
+              // This shouldn't happen in valid game state, but mark as resolved
               cardLinks[linkIndex] = { ...link, resolved: true };
+            }
+          });
+          
+          // Rule 1.5: Cross-suggestion inference - Compare show vs pass events
+          // If player P showed something from {A,B,C} and later passed on {A,B,D},
+          // P must not have A or B (from the pass), so P showed C
+          state.suggestions.forEach(showSuggestion => {
+            if (!showSuggestion.showerId) return;
+            
+            const showCards = [showSuggestion.suspect, showSuggestion.weapon, showSuggestion.room];
+            const showerId = showSuggestion.showerId;
+            
+            // Look at all suggestions where this player passed
+            state.suggestions.forEach(passSuggestion => {
+              if (!passSuggestion.passedPlayerIds.includes(showerId)) return;
+              if (passSuggestion.id === showSuggestion.id) return;
+              
+              const passCards = [passSuggestion.suspect, passSuggestion.weapon, passSuggestion.room];
+              
+              // Cards from the show that are NOT in the pass suggestion
+              // These are the only candidates for what was shown
+              const mustHaveShown = showCards.filter(card => !passCards.includes(card));
+              
+              // If there's exactly one card that could have been shown, it must be that one
+              if (mustHaveShown.length === 1) {
+                const deducedCard = mustHaveShown[0];
+                if (matrix[deducedCard][showerId].state !== 'owned') {
+                  matrix[deducedCard][showerId] = { state: 'owned' };
+                  matrix[deducedCard].envelope = { state: 'not_owned' };
+                  
+                  // Mark other players as not having this card
+                  state.players.forEach(player => {
+                    if (player.id !== showerId && matrix[deducedCard][player.id].state !== 'owned') {
+                      matrix[deducedCard][player.id] = { state: 'not_owned' };
+                    }
+                  });
+                  
+                  newDeductions.push({
+                    id: `deduction-cross-${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${deducedCard}`,
+                    type: 'cross_reference',
+                    description: `${state.players.find(p => p.id === showerId)?.name} must have ${deducedCard} (showed in Turn ${showSuggestion.turnNumber}, passed in Turn ${passSuggestion.turnNumber})`,
+                    cardName: deducedCard,
+                    playerId: showerId,
+                    sourceSuggestionId: showSuggestion.id,
+                    timestamp: new Date()
+                  });
+                  
+                  // Resolve any related links
+                  const relatedLinkIndex = cardLinks.findIndex(l => l.suggestionId === showSuggestion.id);
+                  if (relatedLinkIndex !== -1 && !cardLinks[relatedLinkIndex].resolved) {
+                    cardLinks[relatedLinkIndex] = { 
+                      ...cardLinks[relatedLinkIndex], 
+                      resolved: true, 
+                      resolvedCard: deducedCard 
+                    };
+                  }
+                  
+                  changed = true;
+                }
+              }
+            });
+          });
+          
+          // Rule 1.6: Multiple link intersection for same player
+          // If player P has unresolved links with possible cards {A,B,C} and {B,C,D},
+          // and we can eliminate cards, we should track which cards appear in ALL links
+          const playerLinks: { [playerId: string]: CardLink[] } = {};
+          cardLinks.forEach(link => {
+            if (link.resolved) return;
+            if (!playerLinks[link.playerId]) playerLinks[link.playerId] = [];
+            playerLinks[link.playerId].push(link);
+          });
+          
+          Object.entries(playerLinks).forEach(([playerId, links]) => {
+            if (links.length < 2) return;
+            
+            // For each pair of links, if they share exactly one possible card,
+            // that card is the one the player must have (shown in multiple suggestions)
+            for (let i = 0; i < links.length; i++) {
+              for (let j = i + 1; j < links.length; j++) {
+                const link1 = links[i];
+                const link2 = links[j];
+                
+                // Find intersection of possible cards
+                const intersection = link1.possibleCards.filter(
+                  card => link2.possibleCards.includes(card) && 
+                          matrix[card][playerId].state !== 'not_owned'
+                );
+                
+                // If the intersection is exactly 1 card and both links are about the same card,
+                // that player must have that card
+                if (intersection.length === 1) {
+                  const deducedCard = intersection[0];
+                  
+                  // Check if this card could actually be the one shown in both
+                  const link1Valid = link1.possibleCards.filter(c => matrix[c][playerId].state !== 'not_owned');
+                  const link2Valid = link2.possibleCards.filter(c => matrix[c][playerId].state !== 'not_owned');
+                  
+                  if (link1Valid.length > 0 && link2Valid.length > 0 &&
+                      link1Valid.includes(deducedCard) && link2Valid.includes(deducedCard)) {
+                    // We can't directly deduce ownership from intersection alone
+                    // unless one of the links has only this card remaining
+                  }
+                }
+              }
             }
           });
           
@@ -592,7 +743,7 @@ export const useGameStore = create<GameState & GameActions>()(
               matrix[cardName][playerId] = { state: 'owned' };
               
               newDeductions.push({
-                id: `deduction-elim-${Date.now()}-${cardName}`,
+                id: `deduction-elim-${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${cardName}`,
                 type: 'card_owned',
                 description: `${unknownPlayers[0].name} must have ${cardName} (all others eliminated)`,
                 cardName,
@@ -604,7 +755,23 @@ export const useGameStore = create<GameState & GameActions>()(
             }
           });
           
-          // Rule 3: If all players don't have a card type, it's in envelope
+          // Rule 2.5: Propagate not_owned from potentially_owned when we learn a player doesn't have a card
+          // Update potentially_owned to not_owned if we have evidence from passes
+          state.suggestions.forEach(suggestion => {
+            const passCards = [suggestion.suspect, suggestion.weapon, suggestion.room];
+            suggestion.passedPlayerIds.forEach(passedPlayerId => {
+              passCards.forEach(cardName => {
+                // If the card was potentially_owned but the player passed on a suggestion containing it,
+                // they definitely don't have it
+                if (matrix[cardName][passedPlayerId].state === 'potentially_owned') {
+                  matrix[cardName][passedPlayerId] = { state: 'not_owned' };
+                  changed = true;
+                }
+              });
+            });
+          });
+          
+          // Rule 3: If all players don't have a card, it's in envelope
           ['suspect', 'weapon', 'room'].forEach(type => {
             const cards = getCardsByType(type as CardType);
             
@@ -619,7 +786,7 @@ export const useGameStore = create<GameState & GameActions>()(
                 matrix[cardName].envelope = { state: 'envelope' };
                 
                 newDeductions.push({
-                  id: `deduction-env-${Date.now()}-${cardName}`,
+                  id: `deduction-env-${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${cardName}`,
                   type: 'envelope',
                   description: `${cardName} must be in the envelope (no player has it)`,
                   cardName,
@@ -673,13 +840,92 @@ export const useGameStore = create<GameState & GameActions>()(
                 });
                 
                 newDeductions.push({
-                  id: `deduction-lastenv-${Date.now()}-${cardName}`,
+                  id: `deduction-lastenv-${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${cardName}`,
                   type: 'envelope',
                   description: `${cardName} must be in envelope (only ${type} unaccounted for)`,
                   cardName,
                   timestamp: new Date()
                 });
                 
+                changed = true;
+              }
+            }
+          });
+          
+          // Rule 6: Card count inference
+          // If we know a player has N cards and we've confirmed N-1 of them,
+          // all their potentially_owned cards must be the last one
+          state.players.forEach(player => {
+            const cardCount = player.cardCount;
+            if (!cardCount) return;
+            
+            const ownedCards = getAllCards().filter(
+              card => matrix[card.name][player.id].state === 'owned'
+            );
+            
+            const potentiallyOwnedCards = getAllCards().filter(
+              card => matrix[card.name][player.id].state === 'potentially_owned' ||
+                      matrix[card.name][player.id].state === 'unknown'
+            );
+            
+            const remainingSlots = cardCount - ownedCards.length;
+            
+            // If remaining slots equals potentially owned count, they have all of them
+            if (remainingSlots > 0 && remainingSlots === potentiallyOwnedCards.length) {
+              potentiallyOwnedCards.forEach(card => {
+                if (matrix[card.name][player.id].state !== 'owned') {
+                  matrix[card.name][player.id] = { state: 'owned' };
+                  matrix[card.name].envelope = { state: 'not_owned' };
+                  
+                  // Mark other players as not having this card
+                  state.players.forEach(otherPlayer => {
+                    if (otherPlayer.id !== player.id && matrix[card.name][otherPlayer.id].state !== 'owned') {
+                      matrix[card.name][otherPlayer.id] = { state: 'not_owned' };
+                    }
+                  });
+                  
+                  newDeductions.push({
+                    id: `deduction-count-${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${card.name}`,
+                    type: 'card_count',
+                    description: `${player.name} must have ${card.name} (card count inference: ${ownedCards.length + 1}/${cardCount} cards)`,
+                    cardName: card.name,
+                    playerId: player.id,
+                    timestamp: new Date()
+                  });
+                  
+                  changed = true;
+                }
+              });
+            }
+            
+            // If player has all their cards, mark everything else as not_owned
+            if (ownedCards.length === cardCount) {
+              getAllCards().forEach(card => {
+                if (matrix[card.name][player.id].state !== 'owned' && 
+                    matrix[card.name][player.id].state !== 'not_owned') {
+                  matrix[card.name][player.id] = { state: 'not_owned' };
+                  changed = true;
+                }
+              });
+            }
+          });
+          
+          // Rule 7: If we confirm a player owns a card, mark all other players as not owning it
+          getAllCards().forEach(card => {
+            const cardName = card.name;
+            const owner = state.players.find(p => matrix[cardName][p.id].state === 'owned');
+            
+            if (owner) {
+              state.players.forEach(player => {
+                if (player.id !== owner.id && 
+                    matrix[cardName][player.id].state !== 'not_owned') {
+                  matrix[cardName][player.id] = { state: 'not_owned' };
+                  changed = true;
+                }
+              });
+              
+              if (matrix[cardName].envelope.state !== 'not_owned') {
+                matrix[cardName].envelope = { state: 'not_owned' };
                 changed = true;
               }
             }

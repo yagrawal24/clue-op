@@ -186,6 +186,7 @@ export async function POST(request: NextRequest) {
 - Optimal suggestion strategies
 - Reading opponent behavior and detecting bluffs
 - Probability calculations for unknown cards
+- Cross-reference inference between multiple suggestions
 
 Your goal is to help the player WIN by providing sharp, actionable advice. Be concise but thorough. Focus on what matters most right now.
 
@@ -195,7 +196,15 @@ Rules reminder:
 - Remaining 18 cards dealt to players
 - When suggesting, players must show ONE card if they have any of the 3 suggested
 - If a player passes, they have NONE of the 3 suggested cards
-- First to correctly accuse wins; wrong accusation = elimination`;
+- First to correctly accuse wins; wrong accusation = elimination
+
+ADVANCED DEDUCTION PATTERNS TO CONSIDER:
+1. Cross-reference deduction: If Player A showed a card from {X,Y,Z} in one turn, and later passed on {X,Y,W}, they must have shown Z (the only card from the first set not in the second)
+2. Card count inference: If you know a player has N cards and you've identified N-1, narrow down their last card
+3. Link intersection: If a player showed cards from multiple suggestions, find the common candidates
+4. Process of elimination: If all but one player is ruled out for a card, that player has it
+
+The tracking system automatically applies these deductions. When analyzing, look for patterns the system might have detected and explain them clearly.`;
 
     const userPrompt = body.customQuestion
       ? `${gameContext}\n\n---\n\nThe player asks: "${body.customQuestion}"\n\nProvide a direct, helpful answer to their question based on the game state above.`

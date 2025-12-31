@@ -73,7 +73,7 @@ export interface Accusation {
 // Deduction made by the inference engine
 export interface Deduction {
   id: string;
-  type: 'card_owned' | 'card_not_owned' | 'envelope' | 'link_resolved' | 'manual_adjustment';
+  type: 'card_owned' | 'card_not_owned' | 'envelope' | 'link_resolved' | 'cross_reference' | 'card_count' | 'manual_adjustment';
   description: string;
   cardName: string;
   playerId?: string;
@@ -123,14 +123,14 @@ export const GAME_CONSTANTS = {
   SUSPECTS: [
     'Miss Scarlett',
     'Colonel Mustard',
-    'Mrs. White',
+    'Dr. Orchid',
     'Mr. Green',
     'Mrs. Peacock',
     'Professor Plum'
   ],
   WEAPONS: [
     'Candlestick',
-    'Knife',
+    'Dagger',
     'Lead Pipe',
     'Revolver',
     'Rope',

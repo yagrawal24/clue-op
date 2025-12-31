@@ -39,6 +39,10 @@ const DeductionIcon = ({ type }: { type: Deduction['type'] }) => {
       return <Crown className="w-4 h-4 text-amber-500" strokeWidth={2.5} />;
     case 'link_resolved':
       return <Link2 className="w-4 h-4 text-purple-500" strokeWidth={2.5} />;
+    case 'cross_reference':
+      return <Sparkles className="w-4 h-4 text-cyan-500" strokeWidth={2.5} />;
+    case 'card_count':
+      return <Target className="w-4 h-4 text-blue-500" strokeWidth={2.5} />;
     case 'manual_adjustment':
       return <Target className="w-4 h-4 text-orange-500" strokeWidth={2.5} />;
     default:
@@ -56,6 +60,10 @@ const DeductionBadge = ({ type }: { type: Deduction['type'] }) => {
       return <Badge className="bg-amber-100 text-amber-700 border-0 text-xs">Solution</Badge>;
     case 'link_resolved':
       return <Badge className="bg-purple-100 text-purple-700 border-0 text-xs">Deduced</Badge>;
+    case 'cross_reference':
+      return <Badge className="bg-cyan-100 text-cyan-700 border-0 text-xs">Cross-Ref</Badge>;
+    case 'card_count':
+      return <Badge className="bg-blue-100 text-blue-700 border-0 text-xs">Count</Badge>;
     case 'manual_adjustment':
       return <Badge className="bg-orange-100 text-orange-700 border-0 text-xs">Manual</Badge>;
     default:
@@ -77,8 +85,8 @@ export const IntelligencePanel = ({
 
   // Count stats
   const envelopeDeductions = deductions.filter(d => d.type === 'envelope');
-  const cardOwnedDeductions = deductions.filter(d => d.type === 'card_owned' || d.type === 'manual_adjustment');
-  const linkResolvedDeductions = deductions.filter(d => d.type === 'link_resolved');
+  const cardOwnedDeductions = deductions.filter(d => d.type === 'card_owned' || d.type === 'manual_adjustment' || d.type === 'card_count');
+  const linkResolvedDeductions = deductions.filter(d => d.type === 'link_resolved' || d.type === 'cross_reference');
   const unresolvedLinks = cardLinks.filter(l => !l.resolved);
 
   // Solution progress

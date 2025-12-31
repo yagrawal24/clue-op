@@ -1,278 +1,288 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap");
 @import "tailwindcss";
 
 /* Flat Design System - Bold & Geometric */
 :root {
-  /* Color System - Vibrant & High Contrast */
-  --background: #FFFFFF; /* Pure White */
-  --foreground: #111827; /* Gray 900 - Sharp contrast text */
-  --primary: #3B82F6; /* Blue 500 - Action color */
-  --primary-hover: #2563EB; /* Blue 600 */
-  --secondary: #10B981; /* Emerald 500 - Supporting accent */
-  --secondary-hover: #059669; /* Emerald 600 */
-  --accent: #F59E0B; /* Amber 500 - Highlights */
-  --accent-hover: #D97706; /* Amber 600 */
-  --muted: #F3F4F6; /* Gray 100 - Secondary backgrounds */
-  --muted-hover: #E5E7EB; /* Gray 200 */
-  --border: #E5E7EB; /* Gray 200 */
-  --destructive: #EF4444; /* Red 500 */
-  --destructive-hover: #DC2626; /* Red 600 */
+    /* Color System - Vibrant & High Contrast */
+    --background: #ffffff; /* Pure White */
+    --foreground: #111827; /* Gray 900 - Sharp contrast text */
+    --primary: #3b82f6; /* Blue 500 - Action color */
+    --primary-hover: #2563eb; /* Blue 600 */
+    --secondary: #10b981; /* Emerald 500 - Supporting accent */
+    --secondary-hover: #059669; /* Emerald 600 */
+    --accent: #f59e0b; /* Amber 500 - Highlights */
+    --accent-hover: #d97706; /* Amber 600 */
+    --muted: #f3f4f6; /* Gray 100 - Secondary backgrounds */
+    --muted-hover: #e5e7eb; /* Gray 200 */
+    --border: #e5e7eb; /* Gray 200 */
+    --destructive: #ef4444; /* Red 500 */
+    --destructive-hover: #dc2626; /* Red 600 */
 
-  /* Typography */
-  --font-base: 'Outfit', sans-serif;
+    /* Typography */
+    --font-base: "Outfit", sans-serif;
 
-  /* Spacing */
-  --section-padding: 6rem;
-  --card-padding: 1.5rem;
-  --element-gap: 1rem;
+    /* Spacing */
+    --section-padding: 6rem;
+    --card-padding: 1.5rem;
+    --element-gap: 1rem;
 }
 
 /* Base Styles */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-base);
-  font-weight: 400;
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-base);
+    font-weight: 400;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
 }
 
 /* Prevent horizontal overflow - but allow scrollable containers */
-html, body {
-  max-width: 100%;
-  overflow-x: hidden;
+html,
+body {
+    max-width: 100%;
+    overflow-x: hidden;
 }
 
 * {
-  box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 /* Allow horizontal scroll for explicitly scrollable containers */
 [class*="overflow-x-auto"] {
-  max-width: 100%;
+    max-width: 100%;
 }
 
 /* Typography Hierarchy - Bold & Geometric */
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-base);
-  font-weight: 800;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
-  color: var(--foreground);
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: var(--font-base);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--foreground);
 }
 
 h1 {
-  @apply text-5xl md:text-6xl lg:text-7xl;
-  font-weight: 800;
+    @apply text-5xl md:text-6xl lg:text-7xl;
+    font-weight: 800;
 }
 
 h2 {
-  @apply text-4xl md:text-5xl;
-  font-weight: 800;
+    @apply text-4xl md:text-5xl;
+    font-weight: 800;
 }
 
 h3 {
-  @apply text-2xl md:text-3xl;
-  font-weight: 700;
+    @apply text-2xl md:text-3xl;
+    font-weight: 700;
 }
 
 h4 {
-  @apply text-xl md:text-2xl;
-  font-weight: 700;
+    @apply text-xl md:text-2xl;
+    font-weight: 700;
 }
 
 /* Labels - Uppercase & Bold */
 .label-text {
-  font-weight: 600;
-  @apply text-xs uppercase;
-  letter-spacing: 0.1em;
+    font-weight: 600;
+    @apply text-xs uppercase;
+    letter-spacing: 0.1em;
 }
 
 /* Geometric Background Decorations */
 .bg-decoration {
-  position: absolute;
-  pointer-events: none;
-  z-index: 0;
+    position: absolute;
+    pointer-events: none;
+    z-index: 0;
 }
 
 /* Decorative geometric shapes for visual interest */
 .geo-circle {
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.05);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
 }
 
 .geo-square {
-  background: rgba(255, 255, 255, 0.03);
+    background: rgba(255, 255, 255, 0.03);
 }
 
 /* Flat button styles - Primary */
 .flat-button-primary {
-  background: var(--primary);
-  color: white;
-  border: none;
-  font-weight: 600;
-  transition: all 200ms ease;
+    background: var(--primary);
+    color: white;
+    border: none;
+    font-weight: 600;
+    transition: all 200ms ease;
 }
 
 .flat-button-primary:hover {
-  background: var(--primary-hover);
-  transform: scale(1.05);
+    background: var(--primary-hover);
+    transform: scale(1.05);
 }
 
 .flat-button-primary:active {
-  transform: scale(0.98);
+    transform: scale(0.98);
 }
 
 /* Flat button styles - Secondary */
 .flat-button-secondary {
-  background: var(--muted);
-  color: var(--foreground);
-  border: none;
-  font-weight: 600;
-  transition: all 200ms ease;
+    background: var(--muted);
+    color: var(--foreground);
+    border: none;
+    font-weight: 600;
+    transition: all 200ms ease;
 }
 
 .flat-button-secondary:hover {
-  background: var(--muted-hover);
-  transform: scale(1.05);
+    background: var(--muted-hover);
+    transform: scale(1.05);
 }
 
 /* Flat button styles - Outline */
 .flat-button-outline {
-  background: transparent;
-  color: var(--primary);
-  border: 3px solid var(--primary);
-  font-weight: 600;
-  transition: all 200ms ease;
+    background: transparent;
+    color: var(--primary);
+    border: 3px solid var(--primary);
+    font-weight: 600;
+    transition: all 200ms ease;
 }
 
 .flat-button-outline:hover {
-  background: var(--primary);
-  color: white;
+    background: var(--primary);
+    color: white;
 }
 
 /* Color block sections */
 .section-white {
-  background: var(--background);
+    background: var(--background);
 }
 
 .section-gray {
-  background: var(--muted);
+    background: var(--muted);
 }
 
 .section-primary {
-  background: var(--primary);
-  color: white;
+    background: var(--primary);
+    color: white;
 }
 
 .section-secondary {
-  background: var(--secondary);
-  color: white;
+    background: var(--secondary);
+    color: white;
 }
 
 .section-accent {
-  background: var(--accent);
-  color: white;
+    background: var(--accent);
+    color: white;
 }
 
 /* Flat card styles */
 .flat-card {
-  background: white;
-  border: none;
-  border-radius: 8px;
-  transition: all 200ms ease;
+    background: white;
+    border: none;
+    border-radius: 8px;
+    transition: all 200ms ease;
 }
 
 .flat-card:hover {
-  transform: scale(1.02);
+    transform: scale(1.02);
 }
 
 /* Icon containers - Solid colored circles */
 .icon-circle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  transition: transform 200ms ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: transform 200ms ease;
 }
 
 .group:hover .icon-circle {
-  transform: scale(1.1);
+    transform: scale(1.1);
 }
 
 /* Focus styles - High contrast solid rings */
 *:focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: 2px;
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
 }
 
 /* Smooth transitions for interactive elements only */
-button, a, [role="button"] {
-  transition-property: background-color, color, border-color, transform;
-  transition-timing-function: ease;
-  transition-duration: 200ms;
+button,
+a,
+[role="button"] {
+    transition-property: background-color, color, border-color, transform;
+    transition-timing-function: ease;
+    transition-duration: 200ms;
 }
 
 /* Custom Scrollbar Styles */
 .scrollbar-thin {
-  scrollbar-width: thin;
-  scrollbar-color: #C7D2FE transparent;
+    scrollbar-width: thin;
+    scrollbar-color: #c7d2fe transparent;
 }
 
 .scrollbar-thin::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+    width: 6px;
+    height: 6px;
 }
 
 .scrollbar-thin::-webkit-scrollbar-track {
-  background: transparent;
-  border-radius: 10px;
+    background: transparent;
+    border-radius: 10px;
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background: #C7D2FE;
-  border-radius: 10px;
+    background: #c7d2fe;
+    border-radius: 10px;
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: #A5B4FC;
+    background: #a5b4fc;
 }
 
 /* Mobile-specific optimizations */
 @media (max-width: 640px) {
-  :root {
-    --section-padding: 3rem;
-    --card-padding: 1rem;
-    --element-gap: 0.75rem;
-  }
+    :root {
+        --section-padding: 3rem;
+        --card-padding: 1rem;
+        --element-gap: 0.75rem;
+    }
 
-  /* Touch-friendly tap targets */
-  button, a, [role="button"] {
-    min-height: 44px;
-    min-width: 44px;
-  }
+    /* Touch-friendly tap targets */
+    button,
+    a,
+    [role="button"] {
+        min-height: 44px;
+        min-width: 44px;
+    }
 
-  /* Prevent text size adjustment on mobile */
-  body {
-    -webkit-text-size-adjust: 100%;
-    text-size-adjust: 100%;
-  }
+    /* Prevent text size adjustment on mobile */
+    body {
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+    }
 
-  /* Better touch scrolling on iOS */
-  * {
-    -webkit-overflow-scrolling: touch;
-  }
+    /* Better touch scrolling on iOS */
+    * {
+        -webkit-overflow-scrolling: touch;
+    }
 }
 
 /* Respect Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
 }
