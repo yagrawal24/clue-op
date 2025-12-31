@@ -72,23 +72,23 @@ export default function Home() {
               <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-6 sm:mb-8 px-2">
                 <div className="flex items-center gap-1.5 sm:gap-2 bg-white/10 backdrop-blur-sm px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium">
                   <Brain className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span className="hidden xs:inline">AI Strategist</span>
-                  <span className="xs:hidden">AI</span>
+                  <span className="hidden min-[480px]:inline">AI Strategist</span>
+                  <span className="min-[480px]:hidden">AI</span>
                 </div>
                 <div className="flex items-center gap-1.5 sm:gap-2 bg-white/10 backdrop-blur-sm px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium">
                   <Zap className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span className="hidden xs:inline">Auto Inference</span>
-                  <span className="xs:hidden">Inference</span>
+                  <span className="hidden min-[480px]:inline">Auto Inference</span>
+                  <span className="min-[480px]:hidden">Inference</span>
                 </div>
                 <div className="flex items-center gap-1.5 sm:gap-2 bg-white/10 backdrop-blur-sm px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium">
                   <Grid3X3 className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span className="hidden xs:inline">Master Matrix</span>
-                  <span className="xs:hidden">Matrix</span>
+                  <span className="hidden min-[480px]:inline">Master Matrix</span>
+                  <span className="min-[480px]:hidden">Matrix</span>
                 </div>
                 <div className="flex items-center gap-1.5 sm:gap-2 bg-white/10 backdrop-blur-sm px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium">
                   <Shield className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span className="hidden xs:inline">Link Tracking</span>
-                  <span className="xs:hidden">Links</span>
+                  <span className="hidden min-[480px]:inline">Link Tracking</span>
+                  <span className="min-[480px]:hidden">Links</span>
                 </div>
               </div>
             </div>
@@ -114,8 +114,8 @@ export default function Home() {
                 className="flex items-center gap-1 sm:gap-2 text-gray-600 hover:text-gray-900 h-8 sm:h-10 px-2 sm:px-4 text-xs sm:text-sm"
               >
                 <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4" />
-                <span className="hidden xs:inline">Back to Setup</span>
-                <span className="xs:hidden">Back</span>
+                <span className="hidden min-[480px]:inline">Back to Setup</span>
+                <span className="min-[480px]:hidden">Back</span>
               </Button>
               
               <Button 
@@ -137,7 +137,7 @@ export default function Home() {
 
       {/* Main Content */}
       {!gameStarted ? (
-        <div className="container mx-auto px-4 py-12 max-w-6xl">
+        <div className="container mx-auto px-4 py-8 sm:py-12 max-w-6xl">
           <EnhancedSetup
             players={players}
             myPlayerId={myPlayerId}
@@ -152,39 +152,39 @@ export default function Home() {
           />
           
           {/* Features section */}
-          <div className="mt-20 mb-12">
-            <h2 className="text-3xl font-bold text-center mb-12 text-gray-900">
+          <div className="mt-12 sm:mt-16 md:mt-20 mb-8 sm:mb-12">
+            <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12 text-gray-900 px-4">
               Powerful Features
             </h2>
-            <div className="grid md:grid-cols-3 gap-8">
-              <div className="text-center p-6 rounded-xl bg-gradient-to-br from-gray-50 to-gray-100 border border-gray-200">
-                <div className="w-14 h-14 rounded-xl bg-indigo-500 flex items-center justify-center mx-auto mb-4">
-                  <Grid3X3 className="w-7 h-7 text-white" />
+            <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
+              <div className="text-center p-4 sm:p-6 rounded-xl bg-gradient-to-br from-gray-50 to-gray-100 border border-gray-200">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-indigo-500 flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                  <Grid3X3 className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
                 </div>
-                <h3 className="text-xl font-bold mb-2 text-gray-900">Master Matrix</h3>
-                <p className="text-gray-600">
+                <h3 className="text-lg sm:text-xl font-bold mb-1.5 sm:mb-2 text-gray-900">Master Matrix</h3>
+                <p className="text-sm sm:text-base text-gray-600">
                   Visual grid showing all 21 cards × all players + envelope. 
                   Click to manually override any cell.
                 </p>
               </div>
               
-              <div className="text-center p-6 rounded-xl bg-gradient-to-br from-gray-50 to-gray-100 border border-gray-200">
-                <div className="w-14 h-14 rounded-xl bg-purple-500 flex items-center justify-center mx-auto mb-4">
-                  <Zap className="w-7 h-7 text-white" />
+              <div className="text-center p-4 sm:p-6 rounded-xl bg-gradient-to-br from-gray-50 to-gray-100 border border-gray-200">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-purple-500 flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                  <Zap className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
                 </div>
-                <h3 className="text-xl font-bold mb-2 text-gray-900">Auto Inference</h3>
-                <p className="text-gray-600">
+                <h3 className="text-lg sm:text-xl font-bold mb-1.5 sm:mb-2 text-gray-900">Auto Inference</h3>
+                <p className="text-sm sm:text-base text-gray-600">
                   Constraint satisfaction logic automatically deduces card ownership
                   from passes and shows.
                 </p>
               </div>
               
-              <div className="text-center p-6 rounded-xl bg-gradient-to-br from-gray-50 to-gray-100 border border-gray-200">
-                <div className="w-14 h-14 rounded-xl bg-amber-500 flex items-center justify-center mx-auto mb-4">
-                  <Brain className="w-7 h-7 text-white" />
+              <div className="text-center p-4 sm:p-6 rounded-xl bg-gradient-to-br from-gray-50 to-gray-100 border border-gray-200 sm:col-span-2 md:col-span-1">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-amber-500 flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                  <Brain className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
                 </div>
-                <h3 className="text-xl font-bold mb-2 text-gray-900">AI Strategist</h3>
-                <p className="text-gray-600">
+                <h3 className="text-lg sm:text-xl font-bold mb-1.5 sm:mb-2 text-gray-900">AI Strategist</h3>
+                <p className="text-sm sm:text-base text-gray-600">
                   Get strategic advice, optimal suggestions, and bluff detection
                   powered by AI analysis.
                 </p>
@@ -193,7 +193,7 @@ export default function Home() {
           </div>
 
           {/* Footer */}
-          <footer className="text-center text-sm text-gray-500 py-8 border-t border-gray-200">
+          <footer className="text-center text-xs sm:text-sm text-gray-500 py-6 sm:py-8 border-t border-gray-200">
             <p className="font-medium">
               Built with Next.js, Zustand, and Tailwind CSS
             </p>

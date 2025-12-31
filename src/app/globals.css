@@ -199,6 +199,57 @@ button, a, [role="button"] {
   transition-duration: 200ms;
 }
 
+/* Custom Scrollbar Styles */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: #C7D2FE transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 10px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #C7D2FE;
+  border-radius: 10px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: #A5B4FC;
+}
+
+/* Mobile-specific optimizations */
+@media (max-width: 640px) {
+  :root {
+    --section-padding: 3rem;
+    --card-padding: 1rem;
+    --element-gap: 0.75rem;
+  }
+
+  /* Touch-friendly tap targets */
+  button, a, [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Prevent text size adjustment on mobile */
+  body {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  /* Better touch scrolling on iOS */
+  * {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
 /* Respect Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
   *,

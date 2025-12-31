@@ -83,8 +83,8 @@ export const GameDashboard = ({
               {/* Player count - show on all screens */}
               <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-gray-600">
                 <Users className="w-3 h-3 sm:w-4 sm:h-4" />
-                <span className="hidden xs:inline">{gameState.players.length} players</span>
-                <span className="xs:hidden">{gameState.players.length}p</span>
+                <span className="hidden min-[480px]:inline">{gameState.players.length} players</span>
+                <span className="min-[480px]:hidden">{gameState.players.length}p</span>
               </div>
 
               {/* Solution Progress - show on larger screens */}
@@ -130,10 +130,10 @@ export const GameDashboard = ({
       </div>
 
       {/* Main Content */}
-      <div className="max-w-[1800px] mx-auto p-4">
-        <div className={`grid gap-6 ${showAISidebar ? 'lg:grid-cols-[1fr_380px]' : ''}`}>
+      <div className="max-w-[1800px] mx-auto p-3 sm:p-4">
+        <div className={`grid gap-4 sm:gap-6 ${showAISidebar ? 'lg:grid-cols-[1fr_380px]' : ''}`}>
           {/* Main Panel */}
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Mobile Tabs */}
             <div className="block lg:hidden">
               <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)}>
@@ -186,7 +186,7 @@ export const GameDashboard = ({
             </div>
 
             {/* Desktop Layout */}
-            <div className="hidden lg:grid lg:grid-cols-[1fr_400px] gap-6">
+            <div className="hidden lg:grid lg:grid-cols-[1fr_400px] gap-4 sm:gap-6">
               {/* Left Column - Matrix */}
               <MasterMatrix
                 knowledgeMatrix={gameState.knowledgeMatrix}
@@ -197,7 +197,7 @@ export const GameDashboard = ({
               />
               
               {/* Right Column - Log & Intel */}
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 <SuggestionLog
                   suggestions={gameState.suggestions}
                   players={gameState.players}
