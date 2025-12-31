@@ -39,7 +39,7 @@ body {
   overflow-x: hidden;
 }
 
-/* Prevent horizontal overflow */
+/* Prevent horizontal overflow - but allow scrollable containers */
 html, body {
   max-width: 100%;
   overflow-x: hidden;
@@ -47,6 +47,10 @@ html, body {
 
 * {
   box-sizing: border-box;
+}
+
+/* Allow horizontal scroll for explicitly scrollable containers */
+[class*="overflow-x-auto"] {
   max-width: 100%;
 }
 

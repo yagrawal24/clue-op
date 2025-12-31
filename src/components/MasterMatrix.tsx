@@ -105,9 +105,9 @@ const CardRow = ({ cardName, cardType, matrix, players, myPlayerId, onCellClick,
 
   return (
     <tr className="border-b border-gray-100 hover:bg-gray-50/50 transition-colors group">
-      <td className="py-1.5 sm:py-2 px-2 sm:px-3 text-xs sm:text-sm font-medium text-gray-900 sticky left-0 bg-white z-10 border-r border-gray-200 w-[100px] sm:w-[140px]">
-        <div className="flex items-center gap-1 sm:gap-2">
-          <span className="truncate">{cardName}</span>
+      <td className="py-1.5 sm:py-2 px-2 sm:px-3 text-xs sm:text-sm font-medium text-gray-900 sticky left-0 bg-white z-10 border-r border-gray-200 shadow-[2px_0_4px_rgba(0,0,0,0.05)]">
+        <div className="flex items-center gap-1 sm:gap-2 min-w-0">
+          <span className="truncate flex-1">{cardName}</span>
           {hasAnyData && onClearCardRow && (
             <button
               onClick={(e) => {
@@ -116,7 +116,7 @@ const CardRow = ({ cardName, cardType, matrix, players, myPlayerId, onCellClick,
                   onClearCardRow(cardName);
                 }
               }}
-              className="opacity-0 group-hover:opacity-100 transition-opacity ml-auto p-0.5 sm:p-1 hover:bg-red-50 rounded text-red-500 hover:text-red-700"
+              className="opacity-0 group-hover:opacity-100 transition-opacity ml-auto p-0.5 sm:p-1 hover:bg-red-50 rounded text-red-500 hover:text-red-700 flex-shrink-0"
               title={`Clear ${cardName} row`}
             >
               <Trash2 className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
@@ -129,10 +129,10 @@ const CardRow = ({ cardName, cardType, matrix, players, myPlayerId, onCellClick,
         const isMe = player.id === myPlayerId;
 
         return (
-          <td key={player.id} className="py-0.5 sm:py-1 px-0.5 sm:px-1 text-center w-8 sm:w-9 md:w-10">
+          <td key={player.id} className="py-0.5 sm:py-1 px-0.5 sm:px-1 text-center">
             <button
               onClick={() => onCellClick(cardName, player.id, cellData.state)}
-              className={`w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 rounded-md sm:rounded-lg border-2 flex items-center justify-center transition-all duration-150 ${getCellBg(cellData.state, isMe)} ${isMe ? 'ring-1 sm:ring-2 ring-blue-200 ring-offset-1' : ''}`}
+              className={`w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 rounded-md sm:rounded-lg border-2 flex items-center justify-center transition-all duration-150 flex-shrink-0 mx-auto ${getCellBg(cellData.state, isMe)} ${isMe ? 'ring-1 sm:ring-2 ring-blue-200 ring-offset-1' : ''}`}
               title={`${cardName} - ${player.name}: ${cellData.state}`}
             >
               {getCellIcon(cellData.state, isMe)}
@@ -140,10 +140,10 @@ const CardRow = ({ cardName, cardType, matrix, players, myPlayerId, onCellClick,
           </td>
         );
       })}
-      <td className="py-0.5 sm:py-1 px-0.5 sm:px-1 text-center border-l-2 border-gray-300 w-8 sm:w-9 md:w-10">
+      <td className="py-0.5 sm:py-1 px-0.5 sm:px-1 text-center border-l-2 border-gray-300">
         <button
           onClick={() => onCellClick(cardName, 'envelope', cardData.envelope?.state || 'unknown')}
-          className={`w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 rounded-md sm:rounded-lg border-2 flex items-center justify-center transition-all duration-150 ${getCellBg(cardData.envelope?.state || 'unknown', false)}`}
+          className={`w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 rounded-md sm:rounded-lg border-2 flex items-center justify-center transition-all duration-150 flex-shrink-0 mx-auto ${getCellBg(cardData.envelope?.state || 'unknown', false)}`}
           title={`${cardName} - Envelope: ${cardData.envelope?.state || 'unknown'}`}
         >
           {getCellIcon(cardData.envelope?.state || 'unknown', false)}
@@ -210,7 +210,14 @@ const CardSection = ({
       
       {expanded && (
         <div className="border-x-2 border-b-2 border-gray-200 rounded-b-lg overflow-hidden">
-          <table className="w-full">
+          <table className="w-full table-fixed">
+            <colgroup>
+              <col style={{ width: '120px', minWidth: '120px' }} />
+              {players.map((_, idx) => (
+                <col key={`player-col-${idx}`} style={{ width: '40px', minWidth: '40px' }} />
+              ))}
+              <col style={{ width: '40px', minWidth: '40px' }} />
+            </colgroup>
             <tbody>
               {cards.map(cardName => (
                 <CardRow
@@ -259,95 +266,103 @@ export const MasterMatrix = ({
   }
 
   return (
-    <Card className="bg-white border-2 border-gray-200">
-      <CardHeader className="pb-2 sm:pb-3 px-3 sm:px-6 pt-3 sm:pt-6">
-        <CardTitle className="text-base sm:text-xl font-bold flex items-center gap-2 sm:gap-3">
-          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-indigo-500 flex items-center justify-center flex-shrink-0">
-            <Grid3X3 className="w-4 h-4 sm:w-5 sm:h-5 text-white" strokeWidth={2.5} />
+    <Card className="bg-white border-2 border-gray-200 overflow-hidden max-w-full">
+      <CardHeader className="pb-2 sm:pb-3 px-3 sm:px-4 md:px-6 pt-3 sm:pt-4 md:pt-6 flex-shrink-0">
+        <CardTitle className="text-sm sm:text-base md:text-xl font-bold flex items-center gap-2 sm:gap-3 min-w-0">
+          <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full bg-indigo-500 flex items-center justify-center flex-shrink-0">
+            <Grid3X3 className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-white" strokeWidth={2.5} />
           </div>
           <span className="truncate">Master Matrix</span>
         </CardTitle>
       </CardHeader>
-      <CardContent className="p-0">
+      <CardContent className="p-0 overflow-hidden max-w-full">
         {/* Header - Scrollable with players */}
-        <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
-          <div className="min-w-[600px]">
-            {/* Player header row */}
-            <div className="sticky top-0 bg-gray-100 border-b-2 border-gray-200 z-20">
-              <table className="w-full">
-                <thead>
-                  <tr>
-                    <th className="py-2 sm:py-3 px-2 sm:px-3 text-left text-[10px] sm:text-xs font-bold text-gray-600 uppercase tracking-wider sticky left-0 bg-gray-100 z-30 w-[100px] sm:w-[140px] border-r border-gray-200">
-                      Card
-                    </th>
-                    {players.map(player => (
-                      <th
-                        key={player.id}
-                        className="py-0.5 sm:py-1 px-0.5 sm:px-1 text-center w-8 sm:w-9 md:w-10"
-                      >
-                        <div className="flex flex-col items-center gap-0.5 sm:gap-1">
-                          <div
-                            className={`w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-bold text-white ${player.id === myPlayerId ? 'ring-1 sm:ring-2 ring-blue-400 ring-offset-1' : ''}`}
-                            style={{ backgroundColor: player.color }}
-                            title={player.name}
-                          >
-                            {player.name[0]}
+        <div className="overflow-x-auto overflow-y-visible" style={{ WebkitOverflowScrolling: 'touch' }}>
+          {/* Calculate minimum width based on number of players */}
+          <div style={{ minWidth: `${Math.max(600, 120 + (players.length + 1) * 40)}px` }}>
+              {/* Player header row */}
+              <div className="sticky top-0 bg-gray-100 border-b-2 border-gray-200 z-20">
+                <table className="w-full table-fixed">
+                  <colgroup>
+                    <col style={{ width: '120px', minWidth: '120px' }} />
+                    {players.map((_, idx) => (
+                      <col key={`player-col-${idx}`} style={{ width: '40px', minWidth: '40px' }} />
+                    ))}
+                    <col style={{ width: '40px', minWidth: '40px' }} />
+                  </colgroup>
+                  <thead>
+                    <tr>
+                      <th className="py-2 sm:py-3 px-2 sm:px-3 text-left text-[10px] sm:text-xs font-bold text-gray-600 uppercase tracking-wider sticky left-0 bg-gray-100 z-30 border-r border-gray-200 shadow-[2px_0_4px_rgba(0,0,0,0.05)]">
+                        <div className="truncate">Card</div>
+                      </th>
+                      {players.map(player => (
+                        <th
+                          key={player.id}
+                          className="py-0.5 sm:py-1 px-0.5 sm:px-1 text-center"
+                        >
+                          <div className="flex flex-col items-center gap-0.5 sm:gap-1">
+                            <div
+                              className={`w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-bold text-white flex-shrink-0 ${player.id === myPlayerId ? 'ring-1 sm:ring-2 ring-blue-400 ring-offset-1' : ''}`}
+                              style={{ backgroundColor: player.color }}
+                              title={player.name}
+                            >
+                              {player.name[0]}
+                            </div>
+                            {player.id === myPlayerId && (
+                              <span className="text-[8px] sm:text-[10px] text-blue-600 font-bold whitespace-nowrap">ME</span>
+                            )}
                           </div>
-                          {player.id === myPlayerId && (
-                            <span className="text-[8px] sm:text-[10px] text-blue-600 font-bold">ME</span>
-                          )}
+                        </th>
+                      ))}
+                      <th className="py-0.5 sm:py-1 px-0.5 sm:px-1 text-center border-l-2 border-gray-300">
+                        <div className="flex flex-col items-center gap-0.5 sm:gap-1">
+                          <div className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-full bg-amber-500 flex items-center justify-center flex-shrink-0">
+                            <Lock className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 text-white" strokeWidth={2.5} />
+                          </div>
+                          <span className="text-[8px] sm:text-[10px] text-amber-600 font-bold whitespace-nowrap">ENV</span>
                         </div>
                       </th>
-                    ))}
-                    <th className="py-0.5 sm:py-1 px-0.5 sm:px-1 text-center border-l-2 border-gray-300 w-8 sm:w-9 md:w-10">
-                      <div className="flex flex-col items-center gap-0.5 sm:gap-1">
-                        <div className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-full bg-amber-500 flex items-center justify-center">
-                          <Lock className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 text-white" strokeWidth={2.5} />
-                        </div>
-                        <span className="text-[8px] sm:text-[10px] text-amber-600 font-bold">ENV</span>
-                      </div>
-                    </th>
-                  </tr>
-                </thead>
-              </table>
-            </div>
+                    </tr>
+                  </thead>
+                </table>
+              </div>
 
-            {/* Card sections */}
-            <div className="p-1.5 sm:p-2 md:p-4">
-              <CardSection
-                title="SUSPECTS"
-                cards={[...GAME_CONSTANTS.SUSPECTS]}
-                cardType="suspect"
-                matrix={knowledgeMatrix}
-                players={players}
-                myPlayerId={myPlayerId}
-                onCellClick={handleCellClick}
-                onClearCardRow={onClearCardRow}
-                color="bg-rose-500"
-              />
-              
-              <CardSection
-                title="WEAPONS"
-                cards={[...GAME_CONSTANTS.WEAPONS]}
-                cardType="weapon"
-                matrix={knowledgeMatrix}
-                players={players}
-                myPlayerId={myPlayerId}
-                onCellClick={handleCellClick}
-                onClearCardRow={onClearCardRow}
-                color="bg-blue-500"
-              />
-              
-              <CardSection
-                title="ROOMS"
-                cards={[...GAME_CONSTANTS.ROOMS]}
-                cardType="room"
-                matrix={knowledgeMatrix}
-                players={players}
-                myPlayerId={myPlayerId}
-                onCellClick={handleCellClick}
-                onClearCardRow={onClearCardRow}
-                color="bg-emerald-500"
+              {/* Card sections */}
+              <div className="p-1.5 sm:p-2 md:p-4">
+                <CardSection
+                  title="SUSPECTS"
+                  cards={[...GAME_CONSTANTS.SUSPECTS]}
+                  cardType="suspect"
+                  matrix={knowledgeMatrix}
+                  players={players}
+                  myPlayerId={myPlayerId}
+                  onCellClick={handleCellClick}
+                  onClearCardRow={onClearCardRow}
+                  color="bg-rose-500"
+                />
+                
+                <CardSection
+                  title="WEAPONS"
+                  cards={[...GAME_CONSTANTS.WEAPONS]}
+                  cardType="weapon"
+                  matrix={knowledgeMatrix}
+                  players={players}
+                  myPlayerId={myPlayerId}
+                  onCellClick={handleCellClick}
+                  onClearCardRow={onClearCardRow}
+                  color="bg-blue-500"
+                />
+                
+                <CardSection
+                  title="ROOMS"
+                  cards={[...GAME_CONSTANTS.ROOMS]}
+                  cardType="room"
+                  matrix={knowledgeMatrix}
+                  players={players}
+                  myPlayerId={myPlayerId}
+                  onCellClick={handleCellClick}
+                  onClearCardRow={onClearCardRow}
+                  color="bg-emerald-500"
               />
             </div>
           </div>

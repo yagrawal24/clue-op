@@ -130,10 +130,10 @@ export const GameDashboard = ({
       </div>
 
       {/* Main Content */}
-      <div className="max-w-[1800px] mx-auto p-3 sm:p-4">
+      <div className="max-w-[1800px] mx-auto p-3 sm:p-4 overflow-x-hidden">
         <div className={`grid gap-4 sm:gap-6 ${showAISidebar ? 'lg:grid-cols-[1fr_380px]' : ''}`}>
           {/* Main Panel */}
-          <div className="space-y-4 sm:space-y-6">
+          <div className="space-y-4 sm:space-y-6 min-w-0 overflow-x-hidden">
             {/* Mobile Tabs */}
             <div className="block lg:hidden">
               <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)}>
