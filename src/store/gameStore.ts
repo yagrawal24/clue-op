@@ -189,11 +189,37 @@ export const useGameStore = create<GameState & GameActions>()(
       startGame: () => {
         const state = get();
         
+        // Calculate card counts for all players
+        // Total: 21 cards, Envelope: 3, Distributed: 18
+        const numPlayers = state.players.length;
+        const distributedCards = GAME_CONSTANTS.DISTRIBUTED_CARDS; // 18
+        const baseCards = Math.floor(distributedCards / numPlayers);
+        const extraCards = distributedCards % numPlayers;
+        
+        // First 'extraCards' players (in turn order starting from first player) get an extra card
+        // Find the index of the first player
+        const firstPlayerIndex = state.players.findIndex(p => p.id === state.firstPlayerId);
+        
+        // Calculate card count for each player
+        const playersWithCardCount = state.players.map((player, index) => {
+          // Calculate position relative to first player
+          const positionFromFirst = (index - firstPlayerIndex + numPlayers) % numPlayers;
+          // First 'extraCards' players in turn order get an extra card
+          const cardCount = baseCards + (positionFromFirst < extraCards ? 1 : 0);
+          
+          // If this is "me" and they've already set their cards, use that count
+          if (player.id === state.myPlayerId && player.confirmedCards.length > 0) {
+            return { ...player, cardCount: player.confirmedCards.length };
+          }
+          
+          return { ...player, cardCount };
+        });
+        
         // Initialize knowledge matrix
         const matrix = createEmptyKnowledgeMatrix(state.players.map(p => p.id));
         
         // Re-apply my cards if already set
-        const myPlayer = state.players.find(p => p.id === state.myPlayerId);
+        const myPlayer = playersWithCardCount.find(p => p.id === state.myPlayerId);
         if (myPlayer && myPlayer.confirmedCards.length > 0) {
           myPlayer.confirmedCards.forEach(cardName => {
             matrix[cardName][state.myPlayerId!] = { state: 'owned' };
@@ -209,6 +235,7 @@ export const useGameStore = create<GameState & GameActions>()(
         set({
           gameStarted: true,
           knowledgeMatrix: matrix,
+          players: playersWithCardCount,
           currentTurn: 1
         });
         
@@ -852,27 +879,36 @@ export const useGameStore = create<GameState & GameActions>()(
             }
           });
           
-          // Rule 6: Card count inference
-          // If we know a player has N cards and we've confirmed N-1 of them,
-          // all their potentially_owned cards must be the last one
+          // Rule 6: Card count inference (Enhanced)
+          // Use knowledge of how many cards each player has for sophisticated deductions
           state.players.forEach(player => {
             const cardCount = player.cardCount;
             if (!cardCount) return;
             
-            const ownedCards = getAllCards().filter(
+            const allCards = getAllCards();
+            
+            const ownedCards = allCards.filter(
               card => matrix[card.name][player.id].state === 'owned'
             );
             
-            const potentiallyOwnedCards = getAllCards().filter(
-              card => matrix[card.name][player.id].state === 'potentially_owned' ||
-                      matrix[card.name][player.id].state === 'unknown'
+            const notOwnedCards = allCards.filter(
+              card => matrix[card.name][player.id].state === 'not_owned'
+            );
+            
+            const potentiallyOwnedCards = allCards.filter(
+              card => matrix[card.name][player.id].state === 'potentially_owned'
+            );
+            
+            const unknownCards = allCards.filter(
+              card => matrix[card.name][player.id].state === 'unknown'
             );
             
             const remainingSlots = cardCount - ownedCards.length;
+            const possibleCards = [...potentiallyOwnedCards, ...unknownCards];
             
-            // If remaining slots equals potentially owned count, they have all of them
-            if (remainingSlots > 0 && remainingSlots === potentiallyOwnedCards.length) {
-              potentiallyOwnedCards.forEach(card => {
+            // Rule 6a: If remaining slots equals the number of possible cards, they have all of them
+            if (remainingSlots > 0 && remainingSlots === possibleCards.length) {
+              possibleCards.forEach(card => {
                 if (matrix[card.name][player.id].state !== 'owned') {
                   matrix[card.name][player.id] = { state: 'owned' };
                   matrix[card.name].envelope = { state: 'not_owned' };
@@ -887,7 +923,7 @@ export const useGameStore = create<GameState & GameActions>()(
                   newDeductions.push({
                     id: `deduction-count-${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${card.name}`,
                     type: 'card_count',
-                    description: `${player.name} must have ${card.name} (card count inference: ${ownedCards.length + 1}/${cardCount} cards)`,
+                    description: `${player.name} must have ${card.name} (only ${possibleCards.length} possible cards for ${remainingSlots} remaining slots)`,
                     cardName: card.name,
                     playerId: player.id,
                     timestamp: new Date()
@@ -898,15 +934,110 @@ export const useGameStore = create<GameState & GameActions>()(
               });
             }
             
-            // If player has all their cards, mark everything else as not_owned
+            // Rule 6b: If player has all their cards confirmed, mark everything else as not_owned
             if (ownedCards.length === cardCount) {
-              getAllCards().forEach(card => {
+              allCards.forEach(card => {
                 if (matrix[card.name][player.id].state !== 'owned' && 
                     matrix[card.name][player.id].state !== 'not_owned') {
                   matrix[card.name][player.id] = { state: 'not_owned' };
+                  
+                  newDeductions.push({
+                    id: `deduction-full-hand-${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${card.name}`,
+                    type: 'card_count',
+                    description: `${player.name} doesn't have ${card.name} (already has all ${cardCount} cards)`,
+                    cardName: card.name,
+                    playerId: player.id,
+                    timestamp: new Date()
+                  });
+                  
                   changed = true;
                 }
               });
+            }
+            
+            // Rule 6c: If player has more not_owned + owned cards than total - cardCount, 
+            // we can infer from the constraint that remaining unknowns must be distributed
+            // This helps when we know a card must be owned by one of a few players
+            const knownNotOwned = notOwnedCards.length;
+            const maxPossibleNotOwned = GAME_CONSTANTS.TOTAL_CARDS - cardCount;
+            
+            // If we've confirmed this player doesn't have maxPossibleNotOwned cards,
+            // any remaining potentially_owned must actually be owned
+            if (knownNotOwned >= maxPossibleNotOwned && potentiallyOwnedCards.length > 0) {
+              potentiallyOwnedCards.forEach(card => {
+                if (matrix[card.name][player.id].state !== 'owned') {
+                  matrix[card.name][player.id] = { state: 'owned' };
+                  matrix[card.name].envelope = { state: 'not_owned' };
+                  
+                  state.players.forEach(otherPlayer => {
+                    if (otherPlayer.id !== player.id && matrix[card.name][otherPlayer.id].state !== 'owned') {
+                      matrix[card.name][otherPlayer.id] = { state: 'not_owned' };
+                    }
+                  });
+                  
+                  newDeductions.push({
+                    id: `deduction-constraint-${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${card.name}`,
+                    type: 'card_count',
+                    description: `${player.name} must have ${card.name} (eliminated ${knownNotOwned} cards, max possible to not have is ${maxPossibleNotOwned})`,
+                    cardName: card.name,
+                    playerId: player.id,
+                    timestamp: new Date()
+                  });
+                  
+                  changed = true;
+                }
+              });
+            }
+          });
+          
+          // Rule 6d: Cross-player card count constraint
+          // If the total unknown/potentially_owned cards across all players for a specific card
+          // is exactly 1, that player must have it (unless it's in envelope)
+          getAllCards().forEach(card => {
+            const cardName = card.name;
+            if (matrix[cardName].envelope.state === 'envelope') return;
+            
+            // Check if anyone already owns this card
+            const owner = state.players.find(p => matrix[cardName][p.id].state === 'owned');
+            if (owner) return;
+            
+            // Find players who could potentially have this card
+            const possibleOwners = state.players.filter(p => {
+              const playerCardCount = p.cardCount;
+              if (!playerCardCount) return true; // If no card count, they could have it
+              
+              const ownedByPlayer = getAllCards().filter(
+                c => matrix[c.name][p.id].state === 'owned'
+              ).length;
+              
+              // Can only have this card if they have room
+              return ownedByPlayer < playerCardCount && 
+                     matrix[cardName][p.id].state !== 'not_owned';
+            });
+            
+            // If exactly one player can have this card and envelope can't have it
+            if (possibleOwners.length === 1 && matrix[cardName].envelope.state === 'not_owned') {
+              const soleOwner = possibleOwners[0];
+              if (matrix[cardName][soleOwner.id].state !== 'owned') {
+                matrix[cardName][soleOwner.id] = { state: 'owned' };
+                
+                state.players.forEach(player => {
+                  if (player.id !== soleOwner.id) {
+                    matrix[cardName][player.id] = { state: 'not_owned' };
+                  }
+                });
+                
+                newDeductions.push({
+                  id: `deduction-sole-owner-${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${cardName}`,
+                  type: 'card_count',
+                  description: `${soleOwner.name} must have ${cardName} (only player with room for this card)`,
+                  cardName,
+                  playerId: soleOwner.id,
+                  timestamp: new Date()
+                });
+                
+                changed = true;
+              }
             }
           });
           

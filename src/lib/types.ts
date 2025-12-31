@@ -212,3 +212,84 @@ export interface AIAdvisorResponse {
     generalInsights: string[];
   };
 }
+
+// ============================================
+// PROBABILISTIC REASONING TYPES (Bayesian)
+// ============================================
+
+// Probability distribution for a single card
+export interface CardProbability {
+  cardName: string;
+  cardType: CardType;
+  // Probability that this card is in the envelope
+  envelopeProbability: number;
+  // Probability that each player owns this card
+  playerProbabilities: { [playerId: string]: number };
+}
+
+// Full probability matrix for all cards
+export interface ProbabilityMatrix {
+  [cardName: string]: CardProbability;
+}
+
+// Entropy score for each category (lower = more certain)
+export interface CategoryEntropy {
+  suspects: number;
+  weapons: number;
+  rooms: number;
+  total: number;
+}
+
+// Solution confidence levels
+export interface SolutionConfidence {
+  suspect: { card: string | null; confidence: number };
+  weapon: { card: string | null; confidence: number };
+  room: { card: string | null; confidence: number };
+}
+
+// ============================================
+// SUGGESTION OPTIMIZATION TYPES (Info Gain)
+// ============================================
+
+// Possible outcome of a suggestion
+export interface SuggestionOutcome {
+  // Which players would pass
+  passedPlayerIds: string[];
+  // Which player showed (if any)
+  showerId?: string;
+  // Which card was shown (if known or simulated)
+  shownCard?: string;
+  // Probability of this outcome
+  probability: number;
+  // Information gain if this outcome occurs
+  informationGain: number;
+}
+
+// Analysis of a potential suggestion
+export interface SuggestionAnalysis {
+  suspect: string;
+  weapon: string;
+  room: string;
+  // Expected information gain (entropy reduction)
+  expectedInfoGain: number;
+  // Breakdown of possible outcomes
+  outcomes: SuggestionOutcome[];
+  // Human-readable explanation
+  reasoning: string;
+  // Confidence that this will help solve a category
+  categoryImpact: {
+    suspect: number;
+    weapon: number;
+    room: number;
+  };
+}
+
+// Ranked suggestions for optimal play
+export interface OptimalSuggestions {
+  // Top recommended suggestions
+  recommendations: SuggestionAnalysis[];
+  // Current game entropy
+  currentEntropy: CategoryEntropy;
+  // Best possible entropy reduction
+  bestEntropyReduction: number;
+}

@@ -15,7 +15,9 @@ import {
   Users,
   Menu,
   X,
-  Eye
+  Eye,
+  Lightbulb,
+  PieChart
 } from 'lucide-react';
 import { GameState, Suggestion, PlayerCardKnowledge } from '@/lib/types';
 import { MasterMatrix } from './MasterMatrix';
@@ -24,6 +26,9 @@ import { IntelligencePanel } from './IntelligencePanel';
 import { AIAdvisor } from './AIAdvisor';
 import { EnhancedSuggestionForm } from './EnhancedSuggestionForm';
 import { OpenedCardsForm } from './OpenedCardsForm';
+import { PlayerCardsView } from './PlayerCardsView';
+import { SuggestionOptimizer } from './SuggestionOptimizer';
+import { ProbabilityPanel } from './ProbabilityPanel';
 
 interface GameDashboardProps {
   gameState: GameState;
@@ -43,7 +48,7 @@ export const GameDashboard = ({
   const [showSuggestionDialog, setShowSuggestionDialog] = useState(false);
   const [showOpenedCardsDialog, setShowOpenedCardsDialog] = useState(false);
   const [showAISidebar, setShowAISidebar] = useState(false);
-  const [activeTab, setActiveTab] = useState<'matrix' | 'log' | 'intel'>('matrix');
+  const [activeTab, setActiveTab] = useState<'matrix' | 'log' | 'intel' | 'players' | 'optimize' | 'probability'>('matrix');
 
   const handleRecordSuggestion = (suggestion: Omit<Suggestion, 'id' | 'timestamp' | 'turnNumber'>) => {
     onRecordSuggestion(suggestion);
@@ -138,21 +143,30 @@ export const GameDashboard = ({
             {/* Mobile Tabs */}
             <div className="block lg:hidden">
               <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)}>
-                <TabsList className="grid grid-cols-3 w-full h-12">
-                  <TabsTrigger value="matrix" className="flex items-center gap-1 text-xs sm:text-sm">
+                <TabsList className="grid grid-cols-6 w-full h-12">
+                  <TabsTrigger value="matrix" className="flex items-center gap-1 text-xs sm:text-sm px-1">
                     <Grid3X3 className="w-4 h-4" />
                     <span className="hidden sm:inline">Matrix</span>
-                    <span className="sm:hidden">Grid</span>
                   </TabsTrigger>
-                  <TabsTrigger value="log" className="flex items-center gap-1 text-xs sm:text-sm">
+                  <TabsTrigger value="optimize" className="flex items-center gap-1 text-xs sm:text-sm px-1">
+                    <Lightbulb className="w-4 h-4" />
+                    <span className="hidden sm:inline">Suggest</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="probability" className="flex items-center gap-1 text-xs sm:text-sm px-1">
+                    <PieChart className="w-4 h-4" />
+                    <span className="hidden sm:inline">Prob</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="log" className="flex items-center gap-1 text-xs sm:text-sm px-1">
                     <MessageSquare className="w-4 h-4" />
                     <span className="hidden sm:inline">Log</span>
-                    <span className="sm:hidden">Log</span>
                   </TabsTrigger>
-                  <TabsTrigger value="intel" className="flex items-center gap-1 text-xs sm:text-sm">
+                  <TabsTrigger value="intel" className="flex items-center gap-1 text-xs sm:text-sm px-1">
                     <Brain className="w-4 h-4" />
                     <span className="hidden sm:inline">Intel</span>
-                    <span className="sm:hidden">AI</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="players" className="flex items-center gap-1 text-xs sm:text-sm px-1">
+                    <Users className="w-4 h-4" />
+                    <span className="hidden sm:inline">Cards</span>
                   </TabsTrigger>
                 </TabsList>
 
@@ -161,8 +175,26 @@ export const GameDashboard = ({
                     knowledgeMatrix={gameState.knowledgeMatrix}
                     players={gameState.players}
                     myPlayerId={gameState.myPlayerId}
+                    cardLinks={gameState.cardLinks}
                     onCellClick={onSetCardState}
                     onClearCardRow={onClearCardRow}
+                  />
+                </TabsContent>
+
+                <TabsContent value="optimize" className="mt-4">
+                  <SuggestionOptimizer
+                    knowledgeMatrix={gameState.knowledgeMatrix}
+                    players={gameState.players}
+                    myPlayerId={gameState.myPlayerId}
+                    cardLinks={gameState.cardLinks}
+                  />
+                </TabsContent>
+
+                <TabsContent value="probability" className="mt-4">
+                  <ProbabilityPanel
+                    knowledgeMatrix={gameState.knowledgeMatrix}
+                    players={gameState.players}
+                    cardLinks={gameState.cardLinks}
                   />
                 </TabsContent>
 
@@ -183,37 +215,157 @@ export const GameDashboard = ({
                     knowledgeMatrix={gameState.knowledgeMatrix}
                   />
                 </TabsContent>
+
+                <TabsContent value="players" className="mt-4">
+                  <PlayerCardsView
+                    knowledgeMatrix={gameState.knowledgeMatrix}
+                    players={gameState.players}
+                    myPlayerId={gameState.myPlayerId}
+                  />
+                </TabsContent>
               </Tabs>
             </div>
 
             {/* Desktop Layout */}
-            <div className="hidden lg:grid lg:grid-cols-[1fr_400px] gap-4 sm:gap-6">
-              {/* Left Column - Matrix */}
-              <MasterMatrix
-                knowledgeMatrix={gameState.knowledgeMatrix}
-                players={gameState.players}
-                myPlayerId={gameState.myPlayerId}
-                onCellClick={onSetCardState}
-                onClearCardRow={onClearCardRow}
-              />
-              
-              {/* Right Column - Log & Intel */}
-              <div className="space-y-4 sm:space-y-6">
-                <SuggestionLog
-                  suggestions={gameState.suggestions}
-                  players={gameState.players}
-                  cardLinks={gameState.cardLinks}
-                  maxHeight="300px"
-                />
-                
-                <IntelligencePanel
-                  deductions={gameState.deductions}
-                  players={gameState.players}
-                  solvedEnvelope={gameState.solvedEnvelope}
-                  cardLinks={gameState.cardLinks}
-                  knowledgeMatrix={gameState.knowledgeMatrix}
-                />
-              </div>
+            <div className="hidden lg:block">
+              <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)}>
+                <TabsList className="grid grid-cols-6 w-full max-w-2xl mb-4">
+                  <TabsTrigger value="matrix" className="flex items-center gap-1 text-sm">
+                    <Grid3X3 className="w-4 h-4" />
+                    Matrix
+                  </TabsTrigger>
+                  <TabsTrigger value="optimize" className="flex items-center gap-1 text-sm">
+                    <Lightbulb className="w-4 h-4" />
+                    Optimize
+                  </TabsTrigger>
+                  <TabsTrigger value="probability" className="flex items-center gap-1 text-sm">
+                    <PieChart className="w-4 h-4" />
+                    Probability
+                  </TabsTrigger>
+                  <TabsTrigger value="log" className="flex items-center gap-1 text-sm">
+                    <MessageSquare className="w-4 h-4" />
+                    Log
+                  </TabsTrigger>
+                  <TabsTrigger value="intel" className="flex items-center gap-1 text-sm">
+                    <Brain className="w-4 h-4" />
+                    Intel
+                  </TabsTrigger>
+                  <TabsTrigger value="players" className="flex items-center gap-1 text-sm">
+                    <Users className="w-4 h-4" />
+                    Players
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="matrix" className="mt-0">
+                  <div className="grid lg:grid-cols-[1fr_400px] gap-4 sm:gap-6">
+                    <MasterMatrix
+                      knowledgeMatrix={gameState.knowledgeMatrix}
+                      players={gameState.players}
+                      myPlayerId={gameState.myPlayerId}
+                      cardLinks={gameState.cardLinks}
+                      onCellClick={onSetCardState}
+                      onClearCardRow={onClearCardRow}
+                    />
+                    
+                    <div className="space-y-4 sm:space-y-6">
+                      {/* Compact Probability Panel */}
+                      <ProbabilityPanel
+                        knowledgeMatrix={gameState.knowledgeMatrix}
+                        players={gameState.players}
+                        cardLinks={gameState.cardLinks}
+                        compact={true}
+                      />
+                      
+                      <SuggestionLog
+                        suggestions={gameState.suggestions}
+                        players={gameState.players}
+                        cardLinks={gameState.cardLinks}
+                        maxHeight="250px"
+                      />
+                      
+                      <IntelligencePanel
+                        deductions={gameState.deductions}
+                        players={gameState.players}
+                        solvedEnvelope={gameState.solvedEnvelope}
+                        cardLinks={gameState.cardLinks}
+                        knowledgeMatrix={gameState.knowledgeMatrix}
+                      />
+                    </div>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="optimize" className="mt-0">
+                  <div className="grid lg:grid-cols-[1fr_400px] gap-4 sm:gap-6">
+                    <SuggestionOptimizer
+                      knowledgeMatrix={gameState.knowledgeMatrix}
+                      players={gameState.players}
+                      myPlayerId={gameState.myPlayerId}
+                      cardLinks={gameState.cardLinks}
+                    />
+                    
+                    <div className="space-y-4 sm:space-y-6">
+                      <ProbabilityPanel
+                        knowledgeMatrix={gameState.knowledgeMatrix}
+                        players={gameState.players}
+                        cardLinks={gameState.cardLinks}
+                        compact={true}
+                      />
+                      
+                      <SuggestionLog
+                        suggestions={gameState.suggestions}
+                        players={gameState.players}
+                        cardLinks={gameState.cardLinks}
+                        maxHeight="300px"
+                      />
+                    </div>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="probability" className="mt-0">
+                  <div className="grid lg:grid-cols-[1fr_400px] gap-4 sm:gap-6">
+                    <ProbabilityPanel
+                      knowledgeMatrix={gameState.knowledgeMatrix}
+                      players={gameState.players}
+                      cardLinks={gameState.cardLinks}
+                    />
+                    
+                    <div className="space-y-4 sm:space-y-6">
+                      <SuggestionOptimizer
+                        knowledgeMatrix={gameState.knowledgeMatrix}
+                        players={gameState.players}
+                        myPlayerId={gameState.myPlayerId}
+                        cardLinks={gameState.cardLinks}
+                      />
+                    </div>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="log" className="mt-0">
+                  <SuggestionLog
+                    suggestions={gameState.suggestions}
+                    players={gameState.players}
+                    cardLinks={gameState.cardLinks}
+                  />
+                </TabsContent>
+
+                <TabsContent value="intel" className="mt-0">
+                  <IntelligencePanel
+                    deductions={gameState.deductions}
+                    players={gameState.players}
+                    solvedEnvelope={gameState.solvedEnvelope}
+                    cardLinks={gameState.cardLinks}
+                    knowledgeMatrix={gameState.knowledgeMatrix}
+                  />
+                </TabsContent>
+
+                <TabsContent value="players" className="mt-0">
+                  <PlayerCardsView
+                    knowledgeMatrix={gameState.knowledgeMatrix}
+                    players={gameState.players}
+                    myPlayerId={gameState.myPlayerId}
+                  />
+                </TabsContent>
+              </Tabs>
             </div>
           </div>
 
