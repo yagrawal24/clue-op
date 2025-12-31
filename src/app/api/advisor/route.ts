@@ -53,9 +53,9 @@ function buildGameStateContext(data: AdvisorRequestBody): string {
     
     // Categorize by type
     const categorize = (cards: string[]) => ({
-      suspects: cards.filter(c => GAME_CONSTANTS.SUSPECTS.includes(c)),
-      weapons: cards.filter(c => GAME_CONSTANTS.WEAPONS.includes(c)),
-      rooms: cards.filter(c => GAME_CONSTANTS.ROOMS.includes(c))
+      suspects: cards.filter(c => GAME_CONSTANTS.SUSPECTS.includes(c as any)),
+      weapons: cards.filter(c => GAME_CONSTANTS.WEAPONS.includes(c as any)),
+      rooms: cards.filter(c => GAME_CONSTANTS.ROOMS.includes(c as any))
     });
     
     const unknown = categorize(unknownEnvelopeCards);

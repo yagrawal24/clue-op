@@ -105,8 +105,8 @@ const CardRow = ({ cardName, cardType, matrix, players, myPlayerId, onCellClick,
 
   return (
     <tr className="border-b border-gray-100 hover:bg-gray-50/50 transition-colors group">
-      <td className="py-2 px-3 text-sm font-medium text-gray-900 sticky left-0 bg-white z-10 border-r border-gray-200 w-[140px]">
-        <div className="flex items-center gap-2">
+      <td className="py-1.5 sm:py-2 px-2 sm:px-3 text-xs sm:text-sm font-medium text-gray-900 sticky left-0 bg-white z-10 border-r border-gray-200 w-[100px] sm:w-[140px]">
+        <div className="flex items-center gap-1 sm:gap-2">
           <span className="truncate">{cardName}</span>
           {hasAnyData && onClearCardRow && (
             <button
@@ -116,10 +116,10 @@ const CardRow = ({ cardName, cardType, matrix, players, myPlayerId, onCellClick,
                   onClearCardRow(cardName);
                 }
               }}
-              className="opacity-0 group-hover:opacity-100 transition-opacity ml-auto p-1 hover:bg-red-50 rounded text-red-500 hover:text-red-700"
+              className="opacity-0 group-hover:opacity-100 transition-opacity ml-auto p-0.5 sm:p-1 hover:bg-red-50 rounded text-red-500 hover:text-red-700"
               title={`Clear ${cardName} row`}
             >
-              <Trash2 className="w-3 h-3" />
+              <Trash2 className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
             </button>
           )}
         </div>
@@ -129,10 +129,10 @@ const CardRow = ({ cardName, cardType, matrix, players, myPlayerId, onCellClick,
         const isMe = player.id === myPlayerId;
 
         return (
-          <td key={player.id} className="py-1 px-1 text-center w-11">
+          <td key={player.id} className="py-0.5 sm:py-1 px-0.5 sm:px-1 text-center w-8 sm:w-9 md:w-10">
             <button
               onClick={() => onCellClick(cardName, player.id, cellData.state)}
-              className={`w-9 h-9 sm:w-9 sm:h-9 md:w-9 md:h-9 rounded-lg border-2 flex items-center justify-center transition-all duration-150 ${getCellBg(cellData.state, isMe)} ${isMe ? 'ring-2 ring-blue-200 ring-offset-1' : ''}`}
+              className={`w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 rounded-md sm:rounded-lg border-2 flex items-center justify-center transition-all duration-150 ${getCellBg(cellData.state, isMe)} ${isMe ? 'ring-1 sm:ring-2 ring-blue-200 ring-offset-1' : ''}`}
               title={`${cardName} - ${player.name}: ${cellData.state}`}
             >
               {getCellIcon(cellData.state, isMe)}
@@ -140,10 +140,10 @@ const CardRow = ({ cardName, cardType, matrix, players, myPlayerId, onCellClick,
           </td>
         );
       })}
-      <td className="py-1 px-1 text-center border-l-2 border-gray-300 w-11">
+      <td className="py-0.5 sm:py-1 px-0.5 sm:px-1 text-center border-l-2 border-gray-300 w-8 sm:w-9 md:w-10">
         <button
           onClick={() => onCellClick(cardName, 'envelope', cardData.envelope?.state || 'unknown')}
-          className={`w-9 h-9 rounded-lg border-2 flex items-center justify-center transition-all duration-150 ${getCellBg(cardData.envelope?.state || 'unknown', false)}`}
+          className={`w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 rounded-md sm:rounded-lg border-2 flex items-center justify-center transition-all duration-150 ${getCellBg(cardData.envelope?.state || 'unknown', false)}`}
           title={`${cardName} - Envelope: ${cardData.envelope?.state || 'unknown'}`}
         >
           {getCellIcon(cardData.envelope?.state || 'unknown', false)}
@@ -185,24 +185,25 @@ const CardSection = ({
   const unknownCount = cards.filter(c => matrix[c]?.envelope?.state === 'unknown').length;
   
   return (
-    <div className="mb-4">
+    <div className="mb-3 sm:mb-4">
       <button
         onClick={() => setExpanded(!expanded)}
-        className={`w-full flex items-center justify-between px-4 py-2 rounded-t-lg ${color} text-white font-bold text-sm`}
+        className={`w-full flex items-center justify-between px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-t-lg ${color} text-white font-bold text-xs sm:text-sm`}
       >
-        <div className="flex items-center gap-2">
-          {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+        <div className="flex items-center gap-1 sm:gap-2">
+          {expanded ? <ChevronUp className="w-3 h-3 sm:w-4 sm:h-4" /> : <ChevronDown className="w-3 h-3 sm:w-4 sm:h-4" />}
           <span>{title}</span>
         </div>
-        <div className="flex items-center gap-2 text-xs">
+        <div className="flex items-center gap-1 sm:gap-2 text-[10px] sm:text-xs">
           {envelopeCount > 0 && (
-            <Badge className="bg-white/20 text-white border-0">
-              <Crown className="w-3 h-3 mr-1" />
+            <Badge className="bg-white/20 text-white border-0 text-[9px] sm:text-xs px-1 sm:px-2">
+              <Crown className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
               {envelopeCount}
             </Badge>
           )}
-          <Badge className="bg-white/20 text-white border-0">
-            {unknownCount} unknown
+          <Badge className="bg-white/20 text-white border-0 text-[9px] sm:text-xs px-1 sm:px-2">
+            <span className="hidden sm:inline">{unknownCount} unknown</span>
+            <span className="sm:hidden">{unknownCount}</span>
           </Badge>
         </div>
       </button>
@@ -259,12 +260,12 @@ export const MasterMatrix = ({
 
   return (
     <Card className="bg-white border-2 border-gray-200">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-xl font-bold flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center">
-            <Grid3X3 className="w-5 h-5 text-white" strokeWidth={2.5} />
+      <CardHeader className="pb-2 sm:pb-3 px-3 sm:px-6 pt-3 sm:pt-6">
+        <CardTitle className="text-base sm:text-xl font-bold flex items-center gap-2 sm:gap-3">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-indigo-500 flex items-center justify-center flex-shrink-0">
+            <Grid3X3 className="w-4 h-4 sm:w-5 sm:h-5 text-white" strokeWidth={2.5} />
           </div>
-          Master Matrix
+          <span className="truncate">Master Matrix</span>
         </CardTitle>
       </CardHeader>
       <CardContent className="p-0">
@@ -276,34 +277,34 @@ export const MasterMatrix = ({
               <table className="w-full">
                 <thead>
                   <tr>
-                    <th className="py-3 px-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider sticky left-0 bg-gray-100 z-30 w-[140px] border-r border-gray-200">
+                    <th className="py-2 sm:py-3 px-2 sm:px-3 text-left text-[10px] sm:text-xs font-bold text-gray-600 uppercase tracking-wider sticky left-0 bg-gray-100 z-30 w-[100px] sm:w-[140px] border-r border-gray-200">
                       Card
                     </th>
                     {players.map(player => (
                       <th
                         key={player.id}
-                        className="py-1 px-1 text-center w-11"
+                        className="py-0.5 sm:py-1 px-0.5 sm:px-1 text-center w-8 sm:w-9 md:w-10"
                       >
-                        <div className="flex flex-col items-center gap-1">
+                        <div className="flex flex-col items-center gap-0.5 sm:gap-1">
                           <div
-                            className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white ${player.id === myPlayerId ? 'ring-2 ring-blue-400 ring-offset-1' : ''}`}
+                            className={`w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-bold text-white ${player.id === myPlayerId ? 'ring-1 sm:ring-2 ring-blue-400 ring-offset-1' : ''}`}
                             style={{ backgroundColor: player.color }}
                             title={player.name}
                           >
                             {player.name[0]}
                           </div>
                           {player.id === myPlayerId && (
-                            <span className="text-[10px] text-blue-600 font-bold">ME</span>
+                            <span className="text-[8px] sm:text-[10px] text-blue-600 font-bold">ME</span>
                           )}
                         </div>
                       </th>
                     ))}
-                    <th className="py-1 px-1 text-center border-l-2 border-gray-300 w-11">
-                      <div className="flex flex-col items-center gap-1">
-                        <div className="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center">
-                          <Lock className="w-4 h-4 text-white" strokeWidth={2.5} />
+                    <th className="py-0.5 sm:py-1 px-0.5 sm:px-1 text-center border-l-2 border-gray-300 w-8 sm:w-9 md:w-10">
+                      <div className="flex flex-col items-center gap-0.5 sm:gap-1">
+                        <div className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-full bg-amber-500 flex items-center justify-center">
+                          <Lock className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 text-white" strokeWidth={2.5} />
                         </div>
-                        <span className="text-[10px] text-amber-600 font-bold">ENV</span>
+                        <span className="text-[8px] sm:text-[10px] text-amber-600 font-bold">ENV</span>
                       </div>
                     </th>
                   </tr>
@@ -312,7 +313,7 @@ export const MasterMatrix = ({
             </div>
 
             {/* Card sections */}
-            <div className="p-2 sm:p-4">
+            <div className="p-1.5 sm:p-2 md:p-4">
               <CardSection
                 title="SUSPECTS"
                 cards={[...GAME_CONSTANTS.SUSPECTS]}
@@ -354,38 +355,38 @@ export const MasterMatrix = ({
 
         {/* Legend */}
         <div className="px-2 sm:px-4 pb-2 sm:pb-4">
-          <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-gray-600 mb-2 sm:mb-3">Legend (Click cells to cycle)</h4>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 sm:gap-3 text-xs">
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded border-2 bg-white border-gray-200 flex items-center justify-center">
-                  <HelpCircle className="w-3 h-3 text-gray-300" />
+          <div className="bg-gray-50 rounded-lg p-2 sm:p-3 md:p-4">
+            <h4 className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-gray-600 mb-2 sm:mb-3">Legend</h4>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-1.5 sm:gap-2 md:gap-3 text-[10px] sm:text-xs">
+              <div className="flex items-center gap-1 sm:gap-2">
+                <div className="w-6 h-6 sm:w-7 sm:h-7 rounded border-2 bg-white border-gray-200 flex items-center justify-center flex-shrink-0">
+                  <HelpCircle className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-gray-300" />
                 </div>
-                <span className="font-medium text-gray-600">Unknown</span>
+                <span className="font-medium text-gray-600 truncate">Unknown</span>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded border-2 bg-emerald-50 border-emerald-300 flex items-center justify-center">
-                  <Check className="w-4 h-4 text-emerald-600" strokeWidth={3} />
+              <div className="flex items-center gap-1 sm:gap-2">
+                <div className="w-6 h-6 sm:w-7 sm:h-7 rounded border-2 bg-emerald-50 border-emerald-300 flex items-center justify-center flex-shrink-0">
+                  <Check className="w-3 h-3 sm:w-4 sm:h-4 text-emerald-600" strokeWidth={3} />
                 </div>
-                <span className="font-medium text-gray-600">Owned</span>
+                <span className="font-medium text-gray-600 truncate">Owned</span>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded border-2 bg-red-50 border-red-200 flex items-center justify-center">
-                  <X className="w-4 h-4 text-red-500" strokeWidth={3} />
+              <div className="flex items-center gap-1 sm:gap-2">
+                <div className="w-6 h-6 sm:w-7 sm:h-7 rounded border-2 bg-red-50 border-red-200 flex items-center justify-center flex-shrink-0">
+                  <X className="w-3 h-3 sm:w-4 sm:h-4 text-red-500" strokeWidth={3} />
                 </div>
-                <span className="font-medium text-gray-600">Not Owned</span>
+                <span className="font-medium text-gray-600 truncate">Not Owned</span>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded border-2 bg-amber-50 border-amber-300 flex items-center justify-center">
-                  <Link2 className="w-4 h-4 text-amber-500" />
+              <div className="flex items-center gap-1 sm:gap-2">
+                <div className="w-6 h-6 sm:w-7 sm:h-7 rounded border-2 bg-amber-50 border-amber-300 flex items-center justify-center flex-shrink-0">
+                  <Link2 className="w-3 h-3 sm:w-4 sm:h-4 text-amber-500" />
                 </div>
-                <span className="font-medium text-gray-600">Maybe</span>
+                <span className="font-medium text-gray-600 truncate">Maybe</span>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded border-2 bg-amber-100 border-amber-400 flex items-center justify-center">
-                  <Crown className="w-4 h-4 text-amber-500" />
+              <div className="flex items-center gap-1 sm:gap-2">
+                <div className="w-6 h-6 sm:w-7 sm:h-7 rounded border-2 bg-amber-100 border-amber-400 flex items-center justify-center flex-shrink-0">
+                  <Crown className="w-3 h-3 sm:w-4 sm:h-4 text-amber-500" />
                 </div>
-                <span className="font-medium text-gray-600">Envelope</span>
+                <span className="font-medium text-gray-600 truncate">Envelope</span>
               </div>
             </div>
           </div>
