@@ -191,28 +191,21 @@ export const useGameStore = create<GameState & GameActions>()(
         
         // Calculate card counts for all players
         // Total: 21 cards, Envelope: 3, Distributed: 18
+        // All players get equal cards, any extras are opened cards
         const numPlayers = state.players.length;
         const distributedCards = GAME_CONSTANTS.DISTRIBUTED_CARDS; // 18
-        const baseCards = Math.floor(distributedCards / numPlayers);
+        const cardsPerPlayer = Math.floor(distributedCards / numPlayers);
         const extraCards = distributedCards % numPlayers;
         
-        // First 'extraCards' players (in turn order starting from first player) get an extra card
-        // Find the index of the first player
-        const firstPlayerIndex = state.players.findIndex(p => p.id === state.firstPlayerId);
-        
-        // Calculate card count for each player
-        const playersWithCardCount = state.players.map((player, index) => {
-          // Calculate position relative to first player
-          const positionFromFirst = (index - firstPlayerIndex + numPlayers) % numPlayers;
-          // First 'extraCards' players in turn order get an extra card
-          const cardCount = baseCards + (positionFromFirst < extraCards ? 1 : 0);
-          
+        // All players get the same number of cards
+        // Extra cards (if any) should be marked as opened cards
+        const playersWithCardCount = state.players.map((player) => {
           // If this is "me" and they've already set their cards, use that count
           if (player.id === state.myPlayerId && player.confirmedCards.length > 0) {
             return { ...player, cardCount: player.confirmedCards.length };
           }
           
-          return { ...player, cardCount };
+          return { ...player, cardCount: cardsPerPlayer };
         });
         
         // Initialize knowledge matrix

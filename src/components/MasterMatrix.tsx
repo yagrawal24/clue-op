@@ -126,7 +126,7 @@ const CardRow = ({ cardName, cardType, matrix, players, myPlayerId, onCellClick,
 
   return (
     <tr className="border-b border-gray-50 hover:bg-indigo-50/30 transition-colors group">
-      <td className="py-1 sm:py-1.5 px-2 text-[10px] sm:text-xs font-bold text-gray-700 sticky left-0 bg-white z-10 border-r border-gray-100 shadow-[1px_0_2px_rgba(0,0,0,0.02)]">
+      <td className="py-1 sm:py-1.5 px-2 pl-3 text-[10px] sm:text-xs font-bold text-gray-700 sticky left-0 bg-white z-10 border-r border-gray-100 shadow-[1px_0_2px_rgba(0,0,0,0.02)]">
         <div className="flex items-center gap-1.5 min-w-0">
           <span className="truncate flex-1 group-hover:text-indigo-600 transition-colors">{cardName}</span>
           {/* Probability badge */}
@@ -295,7 +295,7 @@ const CardSection = ({
       </button>
       
       {expanded && (
-        <div className="mt-1 bg-white border-2 border-gray-100 rounded-xl overflow-hidden shadow-inner">
+        <div className="mt-1 bg-white border-2 border-gray-100 rounded-xl overflow-x-auto shadow-inner pr-1">
           <table className="w-full table-fixed">
             <colgroup>
               <col style={{ width: '100px', minWidth: '100px' }} />
@@ -406,9 +406,9 @@ export const MasterMatrix = ({
             </button>
           </CardTitle>
         </CardHeader>
-        <CardContent className="p-0 overflow-hidden max-w-full">
+        <CardContent className="p-0 overflow-x-auto max-w-full">
           {/* Header - Scrollable with players */}
-          <div className="overflow-x-auto overflow-y-visible scrollbar-hide" style={{ WebkitOverflowScrolling: 'touch' }}>
+          <div className="overflow-x-auto overflow-y-visible scrollbar-hide pr-2 sm:pr-4" style={{ WebkitOverflowScrolling: 'touch' }}>
             {/* Calculate minimum width based on number of players */}
             <div style={{ minWidth: `${Math.max(300, 100 + (players.length + 1) * 36)}px` }}>
                 {/* Player header row */}
@@ -423,7 +423,7 @@ export const MasterMatrix = ({
                     </colgroup>
                     <thead>
                       <tr>
-                        <th className="py-3 px-3 text-left text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] sticky left-0 bg-white z-30 border-r border-gray-50">
+                        <th className="py-3 px-3 pl-4 text-left text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] sticky left-0 bg-white z-30 border-r border-gray-50">
                           <div className="truncate">Cards</div>
                         </th>
                         {players.map(player => {
