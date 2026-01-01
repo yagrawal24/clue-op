@@ -320,7 +320,7 @@ function normalizeProbabilities(
  * Lower entropy = more certainty.
  */
 export function calculateEntropy(probMatrix: ProbabilityMatrix): CategoryEntropy {
-  const calculateCategoryEntropy = (cards: string[]): number => {
+  const calculateCategoryEntropy = (cards: readonly string[]): number => {
     // Entropy for "which card is in envelope"
     let entropy = 0;
     
@@ -352,7 +352,7 @@ export function calculateEntropy(probMatrix: ProbabilityMatrix): CategoryEntropy
 export function getSolutionConfidence(
   probMatrix: ProbabilityMatrix
 ): SolutionConfidence {
-  const getBestCandidate = (cards: string[]): { card: string | null; confidence: number } => {
+  const getBestCandidate = (cards: readonly string[]): { card: string | null; confidence: number } => {
     let bestCard: string | null = null;
     let bestProb = 0;
 
